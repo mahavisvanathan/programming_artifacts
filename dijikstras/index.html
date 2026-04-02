@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dijkstra's Algorithm — Interactive Visualizer</title>
+  <meta name="description" content="Step-by-step interactive visualization of Dijkstra's shortest path algorithm. Learn graph algorithms visually." />
+  <meta property="og:title" content="Dijkstra's Algorithm Visualizer" />
+  <meta property="og:description" content="Interactive step-by-step visualization of Dijkstra's shortest path algorithm." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0f1c;
+      --surface: #111827;
+      --surface-light: #1e293b;
+      --border: #2d3a4f;
+      --text: #e2e8f0;
+      --text-muted: #8892a4;
+      --text-dim: #4a5568;
+      --accent: #06d6a0;
+      --accent-dim: rgba(6,214,160,0.12);
+      --accent-glow: rgba(6,214,160,0.4);
+      --visited: #8b5cf6;
+      --visited-dim: rgba(139,92,246,0.12);
+      --current: #f59e0b;
+      --current-glow: rgba(245,158,11,0.4);
+      --path: #06d6a0;
+      --unvisited: #334155;
+      --edge-default: #2d3a4f;
+      --danger: #ef4444;
+      --infinity-color: #64748b;
+      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+      --font-body: 'DM Sans', system-ui, sans-serif;
+    }
+    html { background: var(--bg); color: var(--text); }
+    body { font-family: var(--font-body); min-height: 100vh; background: var(--bg); }
+    #root { max-width: 880px; margin: 0 auto; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse-ring {
+      0%   { r: 34; opacity: 0.8; }
+      50%  { r: 40; opacity: 0.3; }
+      100% { r: 34; opacity: 0.8; }
+    }
+    .fade-in { animation: fadeInUp 0.4s ease both; }
+    .fade-in-d1 { animation: fadeInUp 0.4s ease 0.05s both; }
+    .fade-in-d2 { animation: fadeInUp 0.4s ease 0.1s both; }
+    .fade-in-d3 { animation: fadeInUp 0.4s ease 0.15s both; }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, var(--surface) 0%, var(--bg) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 28px 28px 22px;
+    }
+    .header-tag {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+    }
+    .header-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+    .header-label {
+      font-family: var(--font-mono); font-size: 11px; color: var(--accent);
+      text-transform: uppercase; letter-spacing: 0.15em; font-weight: 600;
+    }
+    .header h1 {
+      font-size: 30px; font-weight: 800; letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--text), var(--accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .header p { color: var(--text-muted); font-size: 14px; margin-top: 4px; line-height: 1.5; }
+
+    /* Explanation */
+    .explain-toggle {
+      background: none; border: 1px solid var(--border); color: var(--accent);
+      padding: 11px 16px; border-radius: 10px; cursor: pointer; font-size: 13px;
+      font-weight: 600; width: 100%; text-align: left; display: flex;
+      justify-content: space-between; align-items: center; font-family: var(--font-body);
+      transition: border-color 0.2s;
+    }
+    .explain-toggle:hover { border-color: var(--accent); }
+    .explain-body {
+      background: var(--surface); border: 1px solid var(--border); border-top: none;
+      border-radius: 0 0 10px 10px; padding: 20px; line-height: 1.75;
+      font-size: 13.5px; color: var(--text-muted);
+    }
+    .explain-body strong { color: var(--text); }
+    .explain-body p { margin-bottom: 12px; }
+    .complexity-box {
+      background: var(--bg); border-radius: 8px; padding: 14px 16px;
+      font-family: var(--font-mono); font-size: 12px; margin-top: 8px;
+      border: 1px solid var(--border);
+    }
+
+    /* Controls bar */
+    .controls { padding: 16px 28px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .preset-btn, .speed-btn {
+      padding: 7px 14px; border-radius: 8px; cursor: pointer;
+      font-size: 12px; font-weight: 600; font-family: var(--font-body);
+      transition: all 0.15s;
+    }
+    .preset-btn {
+      border: 1px solid var(--border); background: transparent; color: var(--text-muted);
+    }
+    .preset-btn.active {
+      border-color: var(--accent); background: var(--accent-dim); color: var(--accent);
+    }
+    .speed-btn {
+      padding: 4px 10px; border-radius: 6px; font-size: 11px;
+      border: 1px solid var(--border); background: transparent; color: var(--text-muted);
+    }
+    .speed-btn.active {
+      border-color: var(--accent); background: var(--accent-dim); color: var(--accent);
+    }
+
+    /* Graph canvas */
+    .graph-wrap {
+      margin: 0 28px; background: var(--surface); border-radius: 14px;
+      border: 1px solid var(--border); overflow: hidden;
+    }
+    .graph-wrap svg { display: block; width: 100%; height: auto; }
+
+    /* Step message */
+    .step-msg {
+      margin: 12px 28px; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 18px; font-family: var(--font-mono);
+      font-size: 13px; display: flex; align-items: flex-start; gap: 10px; line-height: 1.5;
+    }
+    .step-msg .icon { font-size: 16px; flex-shrink: 0; }
+    .step-msg .label { color: var(--text-dim); font-size: 10px; text-transform: uppercase; }
+    .step-msg .msg { color: var(--text); margin-top: 2px; }
+
+    /* Playback */
+    .playback {
+      padding: 0 28px 8px; display: flex; align-items: center; gap: 8px; justify-content: center;
+    }
+    .play-btn {
+      padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border);
+      background: transparent; color: var(--text-muted); font-size: 13px;
+      cursor: pointer; font-weight: 600; font-family: var(--font-body); transition: all 0.15s;
+    }
+    .play-btn:hover { border-color: var(--text-muted); }
+    .play-btn:disabled { opacity: 0.35; cursor: default; }
+    .play-btn.main {
+      padding: 10px 28px; font-size: 14px;
+    }
+    .play-btn.main.playing {
+      background: rgba(245,158,11,0.1); color: var(--current); border-color: var(--current);
+    }
+    .play-btn.main:not(.playing) {
+      background: var(--accent-dim); color: var(--accent); border-color: var(--accent);
+    }
+
+    /* Progress */
+    .progress-wrap { padding: 0 28px 16px; }
+    .progress-bar {
+      height: 4px; background: var(--surface-light); border-radius: 2px;
+      overflow: hidden; cursor: pointer;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--visited));
+      transition: width 0.15s ease;
+    }
+
+    /* Panels */
+    .panels { padding: 0 28px 24px; display: flex; gap: 16px; flex-wrap: wrap; }
+    .panel {
+      flex: 1 1 280px; background: var(--surface); border-radius: 12px;
+      border: 1px solid var(--border); padding: 16px;
+    }
+    .panel-title {
+      margin: 0 0 10px; font-size: 12px; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--text-dim); font-weight: 600;
+    }
+
+    /* Table */
+    .dist-table { width: 100%; border-collapse: separate; border-spacing: 0 4px; font-family: var(--font-mono); font-size: 12px; }
+    .dist-table th {
+      text-align: left; color: var(--text-dim); font-weight: 500; font-size: 10px;
+      text-transform: uppercase; letter-spacing: 0.08em; padding: 4px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .dist-table td { padding: 5px 8px; }
+    .badge {
+      padding: 2px 8px; border-radius: 9999px; font-size: 10px; font-weight: 600;
+      display: inline-block;
+    }
+    .badge-current { background: rgba(245,158,11,0.12); color: var(--current); }
+    .badge-done { background: var(--visited-dim); color: var(--visited); }
+
+    /* Target buttons */
+    .target-btn {
+      padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 13px;
+      font-weight: 700; font-family: var(--font-mono); transition: all 0.15s;
+      border: 1px solid var(--border); background: transparent; color: var(--text-muted);
+    }
+    .target-btn.active {
+      border-color: var(--accent); background: var(--accent-dim); color: var(--accent);
+    }
+    .path-display { font-family: var(--font-mono); font-size: 18px; font-weight: 800; color: var(--accent); margin-bottom: 8px; }
+    .path-cost { color: var(--text-muted); font-size: 13px; }
+    .path-cost span { color: var(--accent); font-weight: 700; font-size: 16px; }
+
+    /* Legend */
+    .legend {
+      margin-top: 20px; padding: 12px; background: var(--bg);
+      border-radius: 8px; border: 1px solid var(--border);
+    }
+    .legend h4 {
+      margin: 0 0 8px; font-size: 11px; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--text-dim);
+    }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
+    .legend-dot {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center; padding: 16px 28px 28px; color: var(--text-dim);
+      font-size: 11px; border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 600px) {
+      .header { padding: 20px 16px 16px; }
+      .header h1 { font-size: 22px; }
+      .controls, .panels, .playback, .progress-wrap, .step-msg { padding-left: 16px; padding-right: 16px; }
+      .graph-wrap { margin: 0 16px; }
+      .panel { flex: 1 1 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+
+  <script>
+    const { useState, useEffect, useRef, createElement: h } = React;
+
+    const PRESETS = {
+      simple: {
+        name: "Simple Network",
+        nodes: [
+          { id: "A", x: 100, y: 200 }, { id: "B", x: 280, y: 80 },
+          { id: "C", x: 280, y: 320 }, { id: "D", x: 480, y: 80 },
+          { id: "E", x: 480, y: 320 }, { id: "F", x: 660, y: 200 },
+        ],
+        edges: [
+          { from: "A", to: "B", weight: 4 }, { from: "A", to: "C", weight: 2 },
+          { from: "B", to: "D", weight: 5 }, { from: "B", to: "C", weight: 1 },
+          { from: "C", to: "E", weight: 3 }, { from: "C", to: "D", weight: 8 },
+          { from: "D", to: "F", weight: 2 }, { from: "E", to: "F", weight: 6 },
+          { from: "E", to: "D", weight: 1 },
+        ],
+      },
+      medium: {
+        name: "City Routes",
+        nodes: [
+          { id: "S", x: 80, y: 200 }, { id: "A", x: 230, y: 80 },
+          { id: "B", x: 230, y: 320 }, { id: "C", x: 400, y: 140 },
+          { id: "D", x: 400, y: 280 }, { id: "E", x: 560, y: 80 },
+          { id: "F", x: 560, y: 320 }, { id: "T", x: 700, y: 200 },
+        ],
+        edges: [
+          { from: "S", to: "A", weight: 7 }, { from: "S", to: "B", weight: 2 },
+          { from: "A", to: "C", weight: 3 }, { from: "A", to: "B", weight: 3 },
+          { from: "B", to: "D", weight: 4 }, { from: "B", to: "A", weight: 3 },
+          { from: "C", to: "E", weight: 4 }, { from: "C", to: "D", weight: 2 },
+          { from: "D", to: "F", weight: 5 }, { from: "D", to: "C", weight: 2 },
+          { from: "E", to: "T", weight: 1 }, { from: "F", to: "T", weight: 3 },
+          { from: "E", to: "F", weight: 2 },
+        ],
+      },
+    };
+
+    function dijkstra(nodes, edges, startId) {
+      const steps = [];
+      const dist = {}, prev = {};
+      const visited = new Set(), unvisited = new Set();
+      nodes.forEach(n => { dist[n.id] = Infinity; prev[n.id] = null; unvisited.add(n.id); });
+      dist[startId] = 0;
+
+      const snap = (type, message, current, exploringEdge, isImprovement) => ({
+        type, message,
+        dist: { ...dist }, prev: { ...prev },
+        visited: new Set(visited), current,
+        exploringEdge: exploringEdge || null,
+        isImprovement: isImprovement,
+        shortestPath: [], allPaths: null,
+      });
+
+      steps.push(snap("init", `Initialize all distances to \u221E, set dist[${startId}] = 0`, null));
+
+      while (unvisited.size > 0) {
+        let current = null, minDist = Infinity;
+        for (const id of unvisited) { if (dist[id] < minDist) { minDist = dist[id]; current = id; } }
+        if (current === null || dist[current] === Infinity) break;
+
+        steps.push(snap("select", `Select node ${current} (distance = ${dist[current]}) \u2014 smallest unvisited`, current));
+
+        const neighbors = edges.filter(e => e.from === current);
+        for (const edge of neighbors) {
+          const nb = edge.to;
+          if (visited.has(nb)) continue;
+          const nd = dist[current] + edge.weight;
+          const better = nd < dist[nb];
+          steps.push(snap("explore",
+            `Explore ${current}\u2192${nb}: ${dist[current]} + ${edge.weight} = ${nd}` +
+            (better ? ` < ${dist[nb] === Infinity ? "\u221E" : dist[nb]} \u2713 Update!` : ` \u2265 ${dist[nb]} \u2717 No update`),
+            current, { from: current, to: nb }, better
+          ));
+          if (better) {
+            dist[nb] = nd; prev[nb] = current;
+            steps.push(snap("update", `Updated: dist[${nb}] = ${nd}, prev[${nb}] = ${current}`, current, { from: current, to: nb }));
+          }
+        }
+        visited.add(current); unvisited.delete(current);
+        steps.push(snap("visited", `Mark ${current} as visited. Shortest distance finalized: ${dist[current]}`, current));
+      }
+
+      const allPaths = {};
+      nodes.forEach(n => {
+        const path = []; let c = n.id;
+        while (c !== null) { path.unshift(c); c = prev[c]; }
+        if (path[0] === startId) allPaths[n.id] = path;
+      });
+
+      const final = snap("done", "Algorithm complete! All shortest distances are finalized.", null);
+      final.allPaths = allPaths;
+      steps.push(final);
+      return steps;
+    }
+
+    const ICONS = { init: "\u26A1", select: "\uD83C\uDFAF", explore: "\uD83D\uDD0D", update: "\u270F\uFE0F", visited: "\u2705", done: "\uD83C\uDFC1" };
+
+    function GraphCanvas({ nodes, edges, step, selectedTarget }) {
+      const nodeMap = {}; nodes.forEach(n => nodeMap[n.id] = n);
+
+      function nodeColor(id) {
+        if (!step) return "var(--unvisited)";
+        if (step.current === id) return "var(--current)";
+        if (step.type === "done" && step.allPaths && step.allPaths[selectedTarget]) {
+          if (step.allPaths[selectedTarget].includes(id)) return "var(--path)";
+        }
+        if (step.visited && step.visited.has(id)) return "var(--visited)";
+        return "var(--unvisited)";
+      }
+
+      function edgeColor(edge) {
+        if (!step) return "var(--edge-default)";
+        const ex = step.exploringEdge;
+        if (ex && ex.from === edge.from && ex.to === edge.to)
+          return step.isImprovement === false ? "var(--danger)" : "var(--current)";
+        if (step.type === "done" && step.allPaths && step.allPaths[selectedTarget]) {
+          const path = step.allPaths[selectedTarget];
+          for (let i = 0; i < path.length - 1; i++)
+            if (path[i] === edge.from && path[i + 1] === edge.to) return "var(--path)";
+        }
+        return "var(--edge-default)";
+      }
+
+      function edgeWidth(edge) {
+        if (!step) return 1.5;
+        const ex = step.exploringEdge;
+        if (ex && ex.from === edge.from && ex.to === edge.to) return 3.5;
+        if (step.type === "done" && step.allPaths && step.allPaths[selectedTarget]) {
+          const path = step.allPaths[selectedTarget];
+          for (let i = 0; i < path.length - 1; i++)
+            if (path[i] === edge.from && path[i + 1] === edge.to) return 3.5;
+        }
+        return 1.5;
+      }
+
+      const defs = h("defs", null,
+        h("filter", { id: "glow" },
+          h("feGaussianBlur", { stdDeviation: "4", result: "cb" }),
+          h("feMerge", null, h("feMergeNode", { in: "cb" }), h("feMergeNode", { in: "SourceGraphic" }))
+        ),
+        h("filter", { id: "softGlow" },
+          h("feGaussianBlur", { stdDeviation: "8", result: "cb" }),
+          h("feMerge", null, h("feMergeNode", { in: "cb" }), h("feMergeNode", { in: "SourceGraphic" }))
+        ),
+        h("pattern", { id: "grid", width: 30, height: 30, patternUnits: "userSpaceOnUse" },
+          h("path", { d: "M 30 0 L 0 0 0 30", fill: "none", stroke: "var(--border)", strokeWidth: 0.3, opacity: 0.3 })
+        ),
+        ...["default","current","path","danger"].map(k => {
+          const fills = { default: "var(--edge-default)", current: "var(--current)", path: "var(--path)", danger: "var(--danger)" };
+          return h("marker", { id: `arr-${k}`, viewBox: "0 0 10 10", refX: 10, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto", key: k },
+            h("path", { d: "M 0 0 L 10 5 L 0 10 z", fill: fills[k] })
+          );
+        })
+      );
+
+      const edgeEls = edges.map((edge, i) => {
+        const from = nodeMap[edge.from], to = nodeMap[edge.to];
+        const color = edgeColor(edge), w = edgeWidth(edge);
+        const dx = to.x - from.x, dy = to.y - from.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        const nx = dx / len, ny = dy / len;
+        const r = 26;
+        const x1 = from.x + nx * r, y1 = from.y + ny * r;
+        const x2 = to.x - nx * (r + 8), y2 = to.y - ny * (r + 8);
+        const mx = (from.x + to.x) / 2, my = (from.y + to.y) / 2;
+        const ox = -ny * 14, oy = nx * 14;
+        const mid = color === "var(--path)" ? "arr-path" : color === "var(--current)" ? "arr-current" : color === "var(--danger)" ? "arr-danger" : "arr-default";
+
+        return h("g", { key: `e${i}` },
+          w > 2 ? h("line", { x1, y1, x2, y2, stroke: color, strokeWidth: w + 6, opacity: 0.15 }) : null,
+          h("line", { x1, y1, x2, y2, stroke: color, strokeWidth: w, markerEnd: `url(#${mid})`, style: { transition: "all 0.3s" } }),
+          h("rect", { x: mx + ox - 14, y: my + oy - 10, width: 28, height: 20, rx: 6, fill: "var(--bg)", stroke: color === "var(--edge-default)" ? "transparent" : color, strokeWidth: 1, opacity: 0.95 }),
+          h("text", { x: mx + ox, y: my + oy + 1, textAnchor: "middle", dominantBaseline: "middle", fontSize: 11, fontWeight: 700, fontFamily: "var(--font-mono)", fill: color === "var(--edge-default)" ? "var(--text-muted)" : color }, edge.weight)
+        );
+      });
+
+      const nodeEls = nodes.map(node => {
+        const color = nodeColor(node.id);
+        const isCur = step && step.current === node.id;
+        const dv = step && step.dist ? step.dist[node.id] : undefined;
+        const dl = dv === undefined ? "\u2013" : dv === Infinity ? "\u221E" : dv;
+        return h("g", { key: node.id },
+          isCur ? h("circle", { cx: node.x, cy: node.y, r: 36, fill: "none", stroke: "var(--current-glow)", strokeWidth: 2, filter: "url(#softGlow)" },
+            h("animate", { attributeName: "r", values: "34;40;34", dur: "2s", repeatCount: "indefinite" }),
+            h("animate", { attributeName: "opacity", values: "0.8;0.3;0.8", dur: "2s", repeatCount: "indefinite" })
+          ) : null,
+          h("circle", { cx: node.x, cy: node.y, r: 26, fill: "var(--bg)", stroke: color, strokeWidth: isCur ? 3 : 2, filter: isCur ? "url(#glow)" : undefined, style: { transition: "all 0.3s" } }),
+          h("text", { x: node.x, y: node.y - 3, textAnchor: "middle", dominantBaseline: "middle", fontSize: 16, fontWeight: 800, fontFamily: "var(--font-mono)", fill: color, style: { transition: "fill 0.3s" } }, node.id),
+          h("text", { x: node.x, y: node.y + 14, textAnchor: "middle", dominantBaseline: "middle", fontSize: 9, fontFamily: "var(--font-mono)", fill: dv === Infinity ? "var(--infinity-color)" : "var(--text-muted)", opacity: 0.9 }, dl)
+        );
+      });
+
+      return h("svg", { viewBox: "0 0 780 400", xmlns: "http://www.w3.org/2000/svg" },
+        defs,
+        h("rect", { width: 780, height: 400, fill: "url(#grid)" }),
+        ...edgeEls, ...nodeEls
+      );
+    }
+
+    function DistanceTable({ nodes, step }) {
+      if (!step) return null;
+      return h("table", { className: "dist-table" },
+        h("thead", null, h("tr", null,
+          h("th", null, "Node"), h("th", null, "Dist"), h("th", null, "Prev"), h("th", null, "Status")
+        )),
+        h("tbody", null, nodes.map(n => {
+          const d = step.dist[n.id];
+          const isCur = step.current === n.id;
+          const isVis = step.visited && step.visited.has(n.id);
+          return h("tr", { key: n.id },
+            h("td", { style: { color: isCur ? "var(--current)" : isVis ? "var(--visited)" : "var(--text)", fontWeight: 700 } }, n.id),
+            h("td", { style: { color: d === Infinity ? "var(--infinity-color)" : "var(--accent)" } }, d === Infinity ? "\u221E" : d),
+            h("td", { style: { color: "var(--text-muted)" } }, step.prev[n.id] || "\u2013"),
+            h("td", null,
+              isCur ? h("span", { className: "badge badge-current" }, "CURRENT") :
+              isVis ? h("span", { className: "badge badge-done" }, "DONE") :
+              h("span", { style: { color: "var(--text-dim)", fontSize: "10px" } }, "unvisited")
+            )
+          );
+        }))
+      );
+    }
+
+    function App() {
+      const [preset, setPreset] = useState("simple");
+      const [steps, setSteps] = useState([]);
+      const [idx, setIdx] = useState(0);
+      const [playing, setPlaying] = useState(false);
+      const [speed, setSpeed] = useState(1200);
+      const [target, setTarget] = useState("F");
+      const [showExplain, setShowExplain] = useState(true);
+      const timer = useRef(null);
+      const graph = PRESETS[preset];
+
+      useEffect(() => {
+        const s = dijkstra(graph.nodes, graph.edges, graph.nodes[0].id);
+        setSteps(s); setIdx(0); setPlaying(false);
+        setTarget(graph.nodes[graph.nodes.length - 1].id);
+      }, [preset]);
+
+      useEffect(() => {
+        if (playing && idx < steps.length - 1)
+          timer.current = setTimeout(() => setIdx(i => i + 1), speed);
+        else if (idx >= steps.length - 1) setPlaying(false);
+        return () => clearTimeout(timer.current);
+      }, [playing, idx, steps.length, speed]);
+
+      const step = steps[idx] || null;
+
+      return h("div", null,
+        // Header
+        h("div", { className: "header fade-in" },
+          h("div", { className: "header-tag" },
+            h("div", { className: "header-dot" }),
+            h("span", { className: "header-label" }, "Graph Algorithms / Shortest Path")
+          ),
+          h("h1", null, "Dijkstra\u2019s Algorithm"),
+          h("p", null, "Interactive step-by-step visualization of the shortest path algorithm")
+        ),
+
+        // Explanation
+        h("div", { style: { padding: "0 28px" }, className: "fade-in-d1" },
+          h("button", { className: "explain-toggle", onClick: () => setShowExplain(!showExplain), style: { marginTop: 16 } },
+            h("span", null, "\uD83D\uDCD6 What is Dijkstra\u2019s Algorithm?"),
+            h("span", { style: { transform: showExplain ? "rotate(180deg)" : "rotate(0deg)", transition: "0.2s", display: "inline-block" } }, "\u25BC")
+          ),
+          showExplain ? h("div", { className: "explain-body" },
+            h("p", null, h("strong", null, "The Problem:"), " Given a weighted, directed graph with non-negative edge weights, find the shortest path from a source node to every other node."),
+            h("p", null, h("strong", null, "Real-world uses:"), " GPS navigation, network routing, social network analysis, game AI pathfinding, airline route optimization."),
+            h("p", null, h("strong", null, "How it works:"), " Dijkstra\u2019s uses a greedy approach. It maintains a set of unvisited nodes and repeatedly picks the one with the smallest known distance. For each neighbor, it checks if going through the current node offers a shorter path. If so, it updates that neighbor\u2019s distance."),
+            h("p", null, h("strong", null, "Key insight:"), " Once a node is visited (dequeued), its shortest distance is finalized \u2014 we\u2019ll never find a shorter path to it, because all remaining unvisited nodes have equal or greater distance."),
+            h("div", { className: "complexity-box" },
+              h("div", { style: { color: "var(--text-dim)", marginBottom: 4 } }, "// Complexity"),
+              h("div", null, h("span", { style: { color: "var(--accent)" } }, "Time: "), h("span", null, "O((V + E) log V) "), h("span", { style: { color: "var(--text-dim)" } }, "with min-heap")),
+              h("div", null, h("span", { style: { color: "var(--visited)" } }, "Space: "), h("span", null, "O(V) "), h("span", { style: { color: "var(--text-dim)" } }, "for dist & prev arrays"))
+            )
+          ) : null
+        ),
+
+        // Controls
+        h("div", { className: "controls fade-in-d2" },
+          h("div", { style: { display: "flex", gap: 6 } },
+            ...Object.entries(PRESETS).map(([k, v]) =>
+              h("button", { key: k, className: "preset-btn" + (preset === k ? " active" : ""), onClick: () => setPreset(k) }, v.name)
+            )
+          ),
+          h("div", { style: { flex: 1 } }),
+          h("div", { style: { display: "flex", alignItems: "center", gap: 6 } },
+            h("span", { style: { fontSize: 11, color: "var(--text-dim)" } }, "Speed"),
+            ...[{ l: "0.5\u00D7", v: 2400 }, { l: "1\u00D7", v: 1200 }, { l: "2\u00D7", v: 600 }].map(s =>
+              h("button", { key: s.l, className: "speed-btn" + (speed === s.v ? " active" : ""), onClick: () => setSpeed(s.v) }, s.l)
+            )
+          )
+        ),
+
+        // Graph
+        h("div", { className: "graph-wrap fade-in-d3" },
+          h(GraphCanvas, { nodes: graph.nodes, edges: graph.edges, step, selectedTarget: target })
+        ),
+
+        // Step message
+        step ? h("div", { className: "step-msg" },
+          h("span", { className: "icon" }, ICONS[step.type] || ""),
+          h("div", null,
+            h("div", { className: "label" }, `Step ${idx + 1}/${steps.length}`),
+            h("div", { className: "msg" }, step.message)
+          )
+        ) : null,
+
+        // Playback
+        h("div", { className: "playback" },
+          h("button", { className: "play-btn", onClick: () => { setIdx(0); setPlaying(false); } }, "\u23EE"),
+          h("button", { className: "play-btn", disabled: idx === 0, onClick: () => setIdx(i => Math.max(0, i - 1)) }, "\u25C0"),
+          h("button", {
+            className: "play-btn main" + (playing ? " playing" : ""),
+            onClick: () => {
+              if (idx >= steps.length - 1) { setIdx(0); setPlaying(true); }
+              else setPlaying(!playing);
+            }
+          }, playing ? "\u23F8 Pause" : idx >= steps.length - 1 ? "\u21BA Replay" : "\u25B6 Play"),
+          h("button", { className: "play-btn", disabled: idx >= steps.length - 1, onClick: () => setIdx(i => Math.min(steps.length - 1, i + 1)) }, "\u25B6"),
+          h("button", { className: "play-btn", onClick: () => { setIdx(steps.length - 1); setPlaying(false); } }, "\u23ED")
+        ),
+
+        // Progress bar
+        h("div", { className: "progress-wrap" },
+          h("div", { className: "progress-bar", onClick: e => {
+            const r = e.currentTarget.getBoundingClientRect();
+            setIdx(Math.round(((e.clientX - r.left) / r.width) * (steps.length - 1)));
+          }},
+            h("div", { className: "progress-fill", style: { width: `${((idx + 1) / steps.length) * 100}%` } })
+          )
+        ),
+
+        // Panels
+        h("div", { className: "panels" },
+          h("div", { className: "panel" },
+            h("h3", { className: "panel-title" }, "Distance Table"),
+            h(DistanceTable, { nodes: graph.nodes, step })
+          ),
+          h("div", { className: "panel" },
+            h("h3", { className: "panel-title" }, "View Shortest Path To"),
+            h("div", { style: { display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 } },
+              ...graph.nodes.slice(1).map(n =>
+                h("button", { key: n.id, className: "target-btn" + (target === n.id ? " active" : ""), onClick: () => { setTarget(n.id); if (steps.length) setIdx(steps.length - 1); } }, n.id)
+              )
+            ),
+            step && step.type === "done" && step.allPaths && step.allPaths[target]
+              ? h("div", null,
+                  h("div", { className: "path-display" }, step.allPaths[target].join(" \u2192 ")),
+                  h("div", { className: "path-cost" }, "Total cost: ", h("span", null, step.dist[target]))
+                )
+              : h("div", { style: { color: "var(--text-dim)", fontSize: 12, fontStyle: "italic" } }, "Run the algorithm to completion to see shortest paths."),
+            h("div", { className: "legend" },
+              h("h4", null, "Legend"),
+              ...[
+                { c: "var(--current)", l: "Current node" },
+                { c: "var(--visited)", l: "Visited (finalized)" },
+                { c: "var(--unvisited)", l: "Unvisited" },
+                { c: "var(--accent)", l: "Shortest path" },
+              ].map(item =>
+                h("div", { className: "legend-item", key: item.l },
+                  h("div", { className: "legend-dot", style: { border: `2px solid ${item.c}`, background: item.c.replace(")", ",0.13)").replace("var(", "").replace(")", "") } }),
+                  h("span", null, item.l)
+                )
+              )
+            )
+          )
+        ),
+
+        // Footer
+        h("div", { className: "footer" }, "Dijkstra\u2019s Algorithm Visualizer \u2022 Built for learning \u2022 Use \u25C0 \u25B6 to step through, or hit Play for auto mode")
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(h(App));
+  </script>
+</body>
+</html>
