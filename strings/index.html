@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Longest Palindromic Substring — Visual Guide</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #0F1117;
+  color: #E8ECF4;
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* ── HEADER ──────────────────────────────────────────────── */
+header {
+  padding: 3rem 2rem 2rem;
+  max-width: 980px;
+  margin: 0 auto;
+  border-bottom: 1px solid #2E3348;
+  margin-bottom: 2rem;
+}
+
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #FF6B6B;
+  margin-bottom: 12px;
+}
+
+h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(1.8rem, 4vw, 2.9rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 14px;
+}
+
+h1 span { color: #FF6B6B; }
+
+.header-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.meta-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+
+.pill-diff  { background: rgba(255,190,89,0.1);  color: #FFBE59; border-color: rgba(255,190,89,0.25); }
+.pill-pat   { background: rgba(62,207,180,0.1);   color: #3ECFB4; border-color: rgba(62,207,180,0.2); }
+.pill-num   { background: transparent; color: #555B73; border-color: #2E3348; }
+
+/* ── PAGE WRAP ───────────────────────────────────────────── */
+.page-wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem;
+}
+
+/* ── PROBLEM DESC ────────────────────────────────────────── */
+.problem-desc {
+  background: #1A1D27;
+  border: 1px solid #2E3348;
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.prob-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #FF6B6B;
+  margin-bottom: 8px;
+}
+
+.prob-statement {
+  font-size: 14px;
+  color: #E8ECF4;
+  line-height: 1.8;
+  margin-bottom: 12px;
+}
+
+.prob-statement strong { color: #3ECFB4; font-weight: 500; }
+
+.prob-example {
+  background: #242838;
+  border: 1px solid #2E3348;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #8B92A8;
+  line-height: 1.9;
+}
+
+.prob-ex-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #555B73;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.ex-hi  { color: #3ECFB4; }
+.ex-ans { color: #34D399; }
+
+/* ── VIZ CANVAS ──────────────────────────────────────────── */
+.viz-canvas {
+  background: #1A1D27;
+  border: 1px solid #2E3348;
+  border-radius: 10px;
+  padding: 2rem;
+  margin-bottom: 1.25rem;
+}
+
+.viz-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #555B73;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+/* String cells */
+.string-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.cell-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.cell-idx {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: #555B73;
+}
+
+.char-cell {
+  width: 58px;
+  height: 58px;
+  border-radius: 8px;
+  border: 1.5px solid #2E3348;
+  background: #1A1D27;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 24px;
+  font-weight: 700;
+  color: #8B92A8;
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  cursor: default;
+  user-select: none;
+}
+
+.cell-ptr {
+  height: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+/* ── CELL STATES ─────────────────────────────────────────── */
+.cs-default  { background: #1A1D27; border-color: #2E3348; color: #555B73; }
+.cs-center   { background: rgba(62,207,180,0.16); border-color: #3ECFB4; color: #3ECFB4; box-shadow: 0 0 14px rgba(62,207,180,0.35); }
+.cs-match    { background: rgba(167,139,250,0.16); border-color: #A78BFA; color: #C4B5FD; box-shadow: 0 0 14px rgba(167,139,250,0.35); }
+.cs-in-range { background: rgba(167,139,250,0.07); border-color: rgba(167,139,250,0.3); color: #A78BFA; }
+.cs-mismatch { background: rgba(255,107,107,0.14); border-color: #FF6B6B; color: #FF6B6B; }
+.cs-best     { background: rgba(52,211,153,0.12); border-color: rgba(52,211,153,0.5); color: #34D399; }
+
+/* Best palindrome bar */
+.best-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 12px 20px;
+  background: #242838;
+  border-radius: 8px;
+  border: 1px solid #2E3348;
+  margin-bottom: 1rem;
+}
+
+.best-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #555B73;
+}
+
+.best-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  font-weight: 700;
+  color: #34D399;
+  letter-spacing: 0.08em;
+  transition: all 0.3s ease;
+}
+
+.best-len {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #555B73;
+}
+
+/* Phase indicators */
+.phase-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.phase-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 3px 12px;
+  border-radius: 20px;
+  background: #242838;
+  color: #555B73;
+  border: 1px solid #2E3348;
+  transition: all 0.3s;
+}
+
+.phase-chip.active {
+  background: rgba(62,207,180,0.12);
+  color: #3ECFB4;
+  border-color: rgba(62,207,180,0.35);
+}
+
+/* ── CONTROLS ────────────────────────────────────────────── */
+.ctrl-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.ctrl-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid #2E3348;
+  background: transparent;
+  color: #E8ECF4;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.ctrl-btn:hover  { background: #242838; }
+.ctrl-btn.primary { border-color: #3ECFB4; color: #3ECFB4; background: rgba(62,207,180,0.1); }
+.ctrl-btn.playing { border-color: #FF6B6B; color: #FF6B6B; background: rgba(255,107,107,0.1); }
+
+.step-counter {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #555B73;
+  margin-left: auto;
+}
+
+/* ── LEGEND ──────────────────────────────────────────────── */
+.legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.leg-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #8B92A8;
+}
+
+.leg-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  flex-shrink: 0;
+}
+
+/* ── EXPLAIN BOX ─────────────────────────────────────────── */
+.explain-box {
+  background: #1A1D27;
+  border: 1px solid #2E3348;
+  border-left: 3px solid #3ECFB4;
+  border-radius: 0 8px 8px 0;
+  padding: 12px 16px;
+  margin-bottom: 1.25rem;
+  font-size: 13px;
+  color: #E8ECF4;
+  line-height: 1.7;
+  min-height: 52px;
+  transition: all 0.2s;
+}
+
+/* ── BOTTOM PANELS ───────────────────────────────────────── */
+.bottom-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 620px) { .bottom-panels { grid-template-columns: 1fr; } }
+
+.panel-card {
+  background: #1A1D27;
+  border: 1px solid #2E3348;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.panel-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #555B73;
+  margin-bottom: 12px;
+}
+
+/* State snapshot */
+.state-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.state-item {
+  background: #242838;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.state-key {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #555B73;
+  margin-bottom: 4px;
+}
+
+.state-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  transition: color 0.3s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Pseudocode */
+.code-block {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1.8;
+  background: #242838;
+  border-radius: 6px;
+  padding: 10px 0;
+  overflow-x: auto;
+}
+
+.code-line {
+  padding: 0 12px;
+  border-left: 3px solid transparent;
+  white-space: pre;
+  color: #555B73;
+  transition: all 0.25s;
+}
+
+.code-line.hl {
+  background: rgba(62,207,180,0.08);
+  border-left-color: #3ECFB4;
+  color: #E8ECF4;
+}
+
+/* ── COMPLEXITY BADGES ───────────────────────────────────── */
+.complexity-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+
+.badge-time    { background: rgba(167,139,250,0.1); color: #A78BFA; border-color: rgba(167,139,250,0.25); }
+.badge-space   { background: rgba(62,207,180,0.1);  color: #3ECFB4; border-color: rgba(62,207,180,0.2); }
+.badge-pattern { background: rgba(255,190,89,0.1);  color: #FFBE59; border-color: rgba(255,190,89,0.2); }
+
+/* ── NOTES PANEL ─────────────────────────────────────────── */
+.notes-panel {
+  background: #1A1D27;
+  border: 1px solid #2E3348;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.notes-panel summary {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #555B73;
+  padding: 12px 16px;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+}
+
+.notes-panel summary:hover { color: #8B92A8; }
+
+.notes-body {
+  padding: 0 16px 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 560px) { .notes-body { grid-template-columns: 1fr; } }
+
+.notes-row .notes-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #555B73;
+  margin-bottom: 4px;
+}
+
+.notes-row .notes-value {
+  font-size: 12px;
+  color: #8B92A8;
+  line-height: 1.7;
+}
+
+.notes-row .notes-value strong { color: #E8ECF4; font-weight: 500; }
+
+footer {
+  text-align: center;
+  padding: 2rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #555B73;
+  border-top: 1px solid #2E3348;
+  max-width: 980px;
+  margin: 0 auto;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Interview Prep — Strings / 2-D Dynamic Programming</div>
+  <h1>Longest <span>Palindromic</span> Substring</h1>
+  <div class="header-meta">
+    <span class="meta-pill pill-diff">Medium</span>
+    <span class="meta-pill pill-pat">Expand Around Center</span>
+    <span class="meta-pill pill-num">LeetCode #5</span>
+  </div>
+</header>
+
+<div class="page-wrap">
+
+  <!-- PROBLEM DESCRIPTION -->
+  <div class="problem-desc">
+    <div class="prob-tag">Strings · 2-D DP · LeetCode 5 · Medium</div>
+    <p class="prob-statement">
+      Given a string <strong>s</strong>, return the <strong>longest palindromic substring</strong>.<br>
+      A palindrome reads the same forwards and backwards. The <strong>expand-around-center</strong> approach
+      exploits the fact that every palindrome has a center — either a single character (odd-length) or a gap
+      between two characters (even-length). Try all <strong>2n−1 centers</strong> and expand outward while
+      characters match. Stop the moment they differ.
+    </p>
+    <div class="prob-example">
+      <span class="prob-ex-label">examples</span>
+      s = <span class="ex-hi">"racecar"</span>  →  center 'e' expands to cover the full string  →  <span class="ex-ans">"racecar"</span><br>
+      s = <span class="ex-hi">"babad"</span>    →  center 'a' expands to "bab"  →  <span class="ex-ans">"bab"</span>  (also "aba")<br>
+      s = <span class="ex-hi">"cbbd"</span>     →  even center 'bb' matches  →  <span class="ex-ans">"bb"</span>
+    </div>
+  </div>
+
+  <!-- VISUALIZATION -->
+  <div class="viz-canvas">
+    <div class="viz-label">s = "racecar" — expand around every center</div>
+    <div class="string-row" id="string-row"></div>
+    <div class="best-bar">
+      <span class="best-label">best so far</span>
+      <span class="best-value" id="best-value">"r"</span>
+      <span class="best-len" id="best-len">length 1</span>
+    </div>
+    <div class="phase-row" style="margin-top:1rem">
+      <span class="phase-chip" id="chip-odd">odd centers</span>
+      <span class="phase-chip" id="chip-even">even centers</span>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="ctrl-row">
+    <button class="ctrl-btn" onclick="step(-1)">&#8592; Prev</button>
+    <button class="ctrl-btn primary" id="play-btn" onclick="togglePlay()">&#9654; Play</button>
+    <button class="ctrl-btn" onclick="step(1)">Next &#8594;</button>
+    <button class="ctrl-btn" onclick="resetViz()">Reset</button>
+    <span class="step-counter" id="step-counter">step 0 / 0</span>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="leg-item"><div class="leg-swatch" style="background:rgba(62,207,180,0.16);border-color:#3ECFB4"></div>center</div>
+    <div class="leg-item"><div class="leg-swatch" style="background:rgba(167,139,250,0.16);border-color:#A78BFA"></div>matching pair (L / R)</div>
+    <div class="leg-item"><div class="leg-swatch" style="background:rgba(167,139,250,0.07);border-color:rgba(167,139,250,0.3)"></div>inside current palindrome</div>
+    <div class="leg-item"><div class="leg-swatch" style="background:rgba(255,107,107,0.14);border-color:#FF6B6B"></div>mismatch — stop</div>
+    <div class="leg-item"><div class="leg-swatch" style="background:rgba(52,211,153,0.12);border-color:rgba(52,211,153,0.5)"></div>best palindrome</div>
+  </div>
+
+  <!-- EXPLANATION -->
+  <div class="explain-box" id="explanation">Press <strong>Next step</strong> to begin the algorithm from the first center.</div>
+
+  <!-- STATE + PSEUDOCODE -->
+  <div class="bottom-panels">
+    <div class="panel-card">
+      <div class="panel-title">State Snapshot</div>
+      <div class="state-grid">
+        <div class="state-item">
+          <div class="state-key">L</div>
+          <div class="state-val" id="s-L" style="color:#A78BFA">—</div>
+        </div>
+        <div class="state-item">
+          <div class="state-key">R</div>
+          <div class="state-val" id="s-R" style="color:#FFBE59">—</div>
+        </div>
+        <div class="state-item">
+          <div class="state-key">center</div>
+          <div class="state-val" id="s-center" style="color:#3ECFB4">—</div>
+        </div>
+        <div class="state-item">
+          <div class="state-key">best</div>
+          <div class="state-val" id="s-best" style="color:#34D399">"r"</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <div class="panel-title">Pseudocode</div>
+      <div class="code-block" id="pseudocode"></div>
+    </div>
+  </div>
+
+  <!-- COMPLEXITY -->
+  <div class="complexity-row">
+    <span class="badge badge-time">time: O(n²)</span>
+    <span class="badge badge-space">space: O(1)</span>
+    <span class="badge badge-pattern">pattern: expand around center</span>
+  </div>
+
+  <!-- NOTES -->
+  <details class="notes-panel">
+    <summary>&#9660;&nbsp;&nbsp;Notes &amp; Key Insight</summary>
+    <div class="notes-body">
+      <div class="notes-row">
+        <div class="notes-label">Key Insight</div>
+        <div class="notes-value">Every palindrome mirrors around a center. Fix each of the <strong>2n−1 possible centers</strong> and expand outward — the first mismatch stops you. No need to check all O(n²) substrings explicitly.</div>
+      </div>
+      <div class="notes-row">
+        <div class="notes-label">Why 2n−1 Centers?</div>
+        <div class="notes-value"><strong>n</strong> centers for odd-length palindromes (each character is its own center) + <strong>n−1</strong> centers for even-length ones (each gap between adjacent characters).</div>
+      </div>
+      <div class="notes-row">
+        <div class="notes-label">Complexity</div>
+        <div class="notes-value"><strong>Time:</strong> O(n²) — n centers, each expands up to O(n) in the worst case.<br><strong>Space:</strong> O(1) — only track the best start index and length.</div>
+      </div>
+      <div class="notes-row">
+        <div class="notes-label">Pattern</div>
+        <div class="notes-value"><strong>Expand Around Center.</strong> Also solvable with an O(n²) DP table (dp[i][j] = true if s[i..j] is a palindrome) or the O(n) Manacher's algorithm.</div>
+      </div>
+      <div class="notes-row">
+        <div class="notes-label">Edge Cases</div>
+        <div class="notes-value">
+          • Single character → always a palindrome<br>
+          • All same chars ("aaaa") → entire string is the answer<br>
+          • Two chars equal ("aa") → caught by the even-center pass
+        </div>
+      </div>
+      <div class="notes-row">
+        <div class="notes-label">vs. DP Table</div>
+        <div class="notes-value">The 2D DP approach also runs O(n²) but uses O(n²) space. Expand-around-center gives the same time in O(1) space — strictly better.</div>
+      </div>
+    </div>
+  </details>
+
+</div>
+
+<footer>string algorithms visualizer — every palindrome has a center</footer>
+
+<script>
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+const S = 'racecar';
+
+const CODE_LINES = [
+  'def longestPalindrome(s: str) -> str:',  // 0
+  '    best = s[0]',                          // 1
+  '',                                          // 2
+  '    def expand(L, R):',                     // 3
+  '        while L >= 0 and R < len(s):',     // 4
+  '            if s[L] != s[R]: break',        // 5
+  '            if R - L + 1 > len(best):',    // 6
+  '                best = s[L : R+1]',         // 7
+  '            L, R = L-1, R+1',               // 8
+  '',                                          // 9
+  '    for i in range(len(s)):',               // 10
+  '        expand(i, i)      # odd length',    // 11
+  '        expand(i, i+1)    # even length',   // 12
+  '',                                          // 13
+  '    return best',                           // 14
+];
+
+function getCodeLine(phase, matchState, isNewBest) {
+  if (phase === 'init')                          return 1;
+  if (phase === 'center')                        return 11;
+  if (phase === 'even')                          return 12;
+  if (phase === 'done')                          return 14;
+  if (phase === 'expand') {
+    if (matchState === 'mismatch')               return 5;
+    return isNewBest ? 7 : 8;
+  }
+  return -1;
+}
+
+// ─── STEP GENERATION ─────────────────────────────────────────────────────────
+const STEPS = (function buildSteps(s) {
+  const steps = [];
+  let bestStart = 0, bestLen = 1;
+
+  function push(extra) {
+    steps.push({
+      bestStart, bestLen,
+      L: null, R: null, center: null,
+      isEven: false, phase: 'init',
+      matchState: null, isNewBest: false,
+      explanation: '',
+      ...extra,
+    });
+  }
+
+  // Initial step
+  push({
+    explanation: `Input: "${s}". We'll try all ${2 * s.length - 1} centers — ` +
+                 `${s.length} odd-length + ${s.length - 1} even-length.`,
+  });
+
+  // ── Odd centers (single character)
+  for (let ci = 0; ci < s.length; ci++) {
+    push({
+      phase: 'center', center: ci, L: ci, R: ci,
+      matchState: 'center', isEven: false,
+      explanation: `Odd center ${ci} ('${s[ci]}'). ` +
+                   `A single character is always a palindrome — start expanding.`,
+    });
+
+    for (let d = 1; ci - d >= 0 && ci + d < s.length; d++) {
+      const L = ci - d, R = ci + d;
+      const match = s[L] === s[R];
+      const newLen = R - L + 1;
+      const isNewBest = match && newLen > bestLen;
+      if (isNewBest) { bestStart = L; bestLen = newLen; }
+
+      push({
+        phase: 'expand', center: ci, L, R,
+        matchState: match ? 'match' : 'mismatch',
+        isEven: false, isNewBest,
+        explanation: match
+          ? `Expand: s[${L}]='${s[L]}' == s[${R}]='${s[R]}' ✓  →  ` +
+            `"${s.slice(L, R + 1)}"${isNewBest ? '  —  new best!' : ''}`
+          : `Expand: s[${L}]='${s[L]}' ≠ s[${R}]='${s[R]}'  →  mismatch, stop expanding.`,
+      });
+      if (!match) break;
+    }
+  }
+
+  // ── Even centers (gap between characters)
+  for (let ci = 0; ci < s.length - 1; ci++) {
+    let L = ci, R = ci + 1;
+    while (L >= 0 && R < s.length) {
+      const match = s[L] === s[R];
+      const newLen = R - L + 1;
+      const isNewBest = match && newLen > bestLen;
+      if (isNewBest) { bestStart = L; bestLen = newLen; }
+      const isFirst = L === ci;
+
+      push({
+        phase: isFirst ? 'even' : 'expand',
+        center: ci + 0.5, L, R,
+        matchState: match ? 'match' : 'mismatch',
+        isEven: true, isNewBest,
+        explanation: match
+          ? `Even center ${ci}–${ci + 1}: s[${L}]='${s[L]}' == s[${R}]='${s[R]}' ✓  →  ` +
+            `"${s.slice(L, R + 1)}"${isNewBest ? '  —  new best!' : ''}`
+          : isFirst
+            ? `Even center ${ci}–${ci + 1}: '${s[ci]}' ≠ '${s[ci + 1]}'  →  no even palindrome here.`
+            : `Expand: s[${L}]='${s[L]}' ≠ s[${R}]='${s[R]}'  →  mismatch, stop.`,
+      });
+      if (!match) break;
+      L--; R++;
+    }
+  }
+
+  // Done
+  push({
+    phase: 'done',
+    explanation: `Done! Longest palindromic substring: ` +
+                 `"${s.slice(bestStart, bestStart + bestLen)}" (length ${bestLen}).`,
+  });
+
+  return steps;
+})(S);
+
+// ─── BUILD DOM ────────────────────────────────────────────────────────────────
+(function buildStringRow() {
+  const row = document.getElementById('string-row');
+  S.split('').forEach((ch, i) => {
+    const col = document.createElement('div');
+    col.className = 'cell-col';
+    col.id = `col-${i}`;
+    col.innerHTML = `
+      <span class="cell-idx">${i}</span>
+      <div class="char-cell cs-default" id="cc-${i}">${ch}</div>
+      <div class="cell-ptr" id="cp-${i}"></div>`;
+    row.appendChild(col);
+  });
+})();
+
+(function buildPseudocode() {
+  document.getElementById('pseudocode').innerHTML = CODE_LINES
+    .map((line, i) =>
+      `<div class="code-line" id="cl-${i}">${
+        (line || ' ').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/ /g,'&nbsp;')
+      }</div>`)
+    .join('');
+})();
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function getCellState(i, s) {
+  const { L, R, matchState, bestStart, bestLen, phase } = s;
+  if (phase === 'init' || phase === 'done') {
+    return i >= bestStart && i < bestStart + bestLen ? 'best' : 'default';
+  }
+  if (L !== null && R !== null) {
+    if (i === L || i === R) {
+      if (matchState === 'center')   return 'center';
+      if (matchState === 'match')    return 'match';
+      if (matchState === 'mismatch') return 'mismatch';
+    }
+    if (i > L && i < R && matchState === 'match') return 'in-range';
+  }
+  return i >= bestStart && i < bestStart + bestLen ? 'best' : 'default';
+}
+
+function getPtrHTML(i, s) {
+  if (s.L === null || s.phase === 'init' || s.phase === 'done') return '';
+  const { L, R, center, isEven } = s;
+  const parts = [];
+  if (L === R) {
+    if (i === L) parts.push(`<span style="color:#3ECFB4">▲&nbsp;C</span>`);
+  } else {
+    if (i === L) parts.push(`<span style="color:#A78BFA">▲&nbsp;L</span>`);
+    if (i === R) parts.push(`<span style="color:#FFBE59">▲&nbsp;R</span>`);
+    if (!isEven && typeof center === 'number' && Number.isInteger(center) &&
+        i === center && i !== L && i !== R)
+      parts.push(`<span style="color:#3ECFB4">▲&nbsp;C</span>`);
+  }
+  return parts.join('');
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+let prevHL = -1;
+
+function render(idx) {
+  const s = STEPS[idx];
+
+  document.getElementById('explanation').innerHTML = s.explanation;
+  document.getElementById('step-counter').textContent = `step ${idx} / ${STEPS.length - 1}`;
+
+  // Cells & pointers
+  for (let i = 0; i < S.length; i++) {
+    document.getElementById(`cc-${i}`).className = `char-cell cs-${getCellState(i, s)}`;
+    document.getElementById(`cp-${i}`).innerHTML = getPtrHTML(i, s);
+  }
+
+  // Best bar
+  const bestStr = S.slice(s.bestStart, s.bestStart + s.bestLen);
+  document.getElementById('best-value').textContent = `"${bestStr}"`;
+  document.getElementById('best-len').textContent   = `length ${s.bestLen}`;
+
+  // Phase chips
+  const inOdd  = !s.isEven && s.phase !== 'init' && s.phase !== 'done';
+  const inEven = s.isEven;
+  document.getElementById('chip-odd').className  = 'phase-chip' + (inOdd  ? ' active' : '');
+  document.getElementById('chip-even').className = 'phase-chip' + (inEven ? ' active' : '');
+
+  // State snapshot
+  const cStr = s.center !== null
+    ? (Number.isInteger(s.center) ? `${s.center} ('${S[s.center]}')` : `${s.center}`)
+    : '—';
+  document.getElementById('s-L').textContent      = s.L !== null ? `${s.L} ('${S[s.L]}')` : '—';
+  document.getElementById('s-R').textContent      = s.R !== null ? `${s.R} ('${S[s.R]}')` : '—';
+  document.getElementById('s-center').textContent = cStr;
+  document.getElementById('s-best').textContent   = `"${bestStr}"`;
+
+  // Pseudocode highlight
+  if (prevHL >= 0) {
+    const el = document.getElementById(`cl-${prevHL}`);
+    if (el) el.classList.remove('hl');
+  }
+  const hl = getCodeLine(s.phase, s.matchState, s.isNewBest);
+  if (hl >= 0) {
+    const el = document.getElementById(`cl-${hl}`);
+    if (el) el.classList.add('hl');
+    prevHL = hl;
+  }
+}
+
+// ─── CONTROLS ─────────────────────────────────────────────────────────────────
+let cur = 0, playing = null;
+
+function step(dir) {
+  const n = cur + dir;
+  if (n < 0 || n >= STEPS.length) return;
+  cur = n; render(cur);
+}
+
+function resetViz() {
+  stopPlay(); cur = 0; render(0);
+}
+
+function togglePlay() {
+  if (playing) { stopPlay(); return; }
+  playing = setInterval(() => {
+    if (cur >= STEPS.length - 1) { stopPlay(); return; }
+    cur++; render(cur);
+  }, 750);
+  const btn = document.getElementById('play-btn');
+  btn.textContent = '⏸ Pause';
+  btn.className = 'ctrl-btn playing';
+}
+
+function stopPlay() {
+  clearInterval(playing); playing = null;
+  const btn = document.getElementById('play-btn');
+  btn.innerHTML = '&#9654; Play';
+  btn.className = 'ctrl-btn primary';
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') step(1);
+  if (e.key === 'ArrowLeft')  step(-1);
+  if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+  if (e.key === 'r' || e.key === 'R') resetViz();
+});
+
+render(0);
+</script>
+</body>
+</html>
