@@ -326,10 +326,10 @@
     .state-visited   { fill: rgba(52,211,153,0.14); stroke: #34D399; stroke-width: 2; }
     .state-done      { fill: rgba(52,211,153,0.14); stroke: #34D399; stroke-width: 2; }
 
-    .edge-default  { stroke: rgba(255,255,255,0.1); stroke-width: 1.5; }
-    .edge-relaxing { stroke: #FFBE59; stroke-width: 2.5; }
-    .edge-improved { stroke: #3ECFB4; stroke-width: 2.5; }
-    .edge-path     { stroke: #34D399; stroke-width: 2.5; }
+    .edge-default  { stroke: rgba(255,255,255,0.1); stroke-width: 1.5; transition: stroke 0.3s, stroke-width 0.3s, filter 0.3s; }
+    .edge-relaxing { stroke: #FFBE59; stroke-width: 3; filter: drop-shadow(0 0 6px rgba(255,190,89,0.6)); transition: stroke 0.3s, stroke-width 0.3s, filter 0.3s; }
+    .edge-improved { stroke: #3ECFB4; stroke-width: 3; filter: drop-shadow(0 0 6px rgba(62,207,180,0.6)); transition: stroke 0.3s, stroke-width 0.3s, filter 0.3s; }
+    .edge-path     { stroke: #34D399; stroke-width: 2.5; filter: drop-shadow(0 0 4px rgba(52,211,153,0.45)); transition: stroke 0.3s, stroke-width 0.3s, filter 0.3s; }
 
     .node-label {
       font-family: 'JetBrains Mono', monospace;
@@ -1118,7 +1118,7 @@
         distColor = '#FFBE59';
       }
 
-      circle.className = cls;
+      circle.setAttribute('class', cls);
       distEl.setAttribute('fill', distColor);
       const dv = s.dist[n];
       distEl.textContent = dv === null ? '∞' : dv;
@@ -1139,7 +1139,7 @@
           cls = 'edge-relaxing';
         }
       }
-      el.className = cls;
+      el.setAttribute('class', cls);
     });
 
     // 5. Distance table
