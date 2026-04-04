@@ -269,6 +269,77 @@
     border-color: var(--border);
   }
 
+  .note-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .note-btn:hover {
+    color: var(--text);
+    border-color: var(--border2);
+    background: var(--surface2);
+  }
+
+  .note-btn.has-note {
+    color: var(--accent);
+    border-color: rgba(200,247,100,0.25);
+  }
+
+  .completed .note-btn {
+    color: #2e2e36;
+    border-color: #1e1e24;
+  }
+
+  .completed .note-btn.has-note {
+    color: rgba(200,247,100,0.4);
+    border-color: rgba(200,247,100,0.15);
+  }
+
+  .completed .note-btn:hover {
+    color: var(--muted);
+    border-color: var(--border);
+  }
+
+  .note-panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.22s ease;
+  }
+
+  .note-panel.open {
+    max-height: 260px;
+  }
+
+  .note-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 10px 12px;
+    resize: vertical;
+    min-height: 90px;
+    max-height: 220px;
+    margin: 6px 0 10px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .note-input:focus { border-color: var(--border2); }
+  .note-input::placeholder { color: var(--muted); opacity: 0.55; }
+
   footer {
     margin-top: 3.5rem;
     padding-top: 1.5rem;
@@ -389,12 +460,18 @@ const problems = [
 ];
 
 const STORAGE_KEY = 'lc_tracker_done';
+const NOTES_KEY = 'lc_tracker_notes';
 let done = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'));
+let notes = JSON.parse(localStorage.getItem(NOTES_KEY) || '{}');
 
 const total = problems.reduce((s, g) => s + g.items.length, 0);
 
 function save() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify([...done]));
+}
+
+function saveNotes() {
+  localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
 }
 
 function updateStats() {
@@ -423,6 +500,10 @@ function render() {
     `;
 
     group.items.forEach(p => {
+      const entry = document.createElement('div');
+      entry.className = 'problem-entry';
+
+      const hasNote = !!(notes[p.id] && notes[p.id].length);
       const row = document.createElement('div');
       row.className = 'problem-row' + (done.has(p.id) ? ' completed' : '');
       row.innerHTML = `
@@ -436,6 +517,7 @@ function render() {
           <div class="problem-num">LC #${p.lc}</div>
         </div>
         <span class="diff-badge diff-${p.diff}">${p.diff}</span>
+        <button class="note-btn${hasNote ? ' has-note' : ''}" type="button">note</button>
         <a class="lc-btn" href="https://leetcode.com/problems/${slugs[p.lc]}" target="_blank" onclick="event.stopPropagation()">open ↗</a>
       `;
       row.addEventListener('click', () => {
@@ -445,7 +527,32 @@ function render() {
         row.classList.toggle('completed');
         updateStats();
       });
-      sec.appendChild(row);
+
+      const panel = document.createElement('div');
+      panel.className = 'note-panel';
+      const textarea = document.createElement('textarea');
+      textarea.className = 'note-input';
+      textarea.placeholder = 'notes — approach, edge cases, complexity...';
+      textarea.value = notes[p.id] || '';
+      textarea.addEventListener('click', (e) => e.stopPropagation());
+      textarea.addEventListener('input', () => {
+        const val = textarea.value;
+        if (val) notes[p.id] = val;
+        else delete notes[p.id];
+        saveNotes();
+        row.querySelector('.note-btn').classList.toggle('has-note', !!val);
+      });
+      panel.appendChild(textarea);
+
+      row.querySelector('.note-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        panel.classList.toggle('open');
+        if (panel.classList.contains('open')) textarea.focus();
+      });
+
+      entry.appendChild(row);
+      entry.appendChild(panel);
+      sec.appendChild(entry);
     });
 
     list.appendChild(sec);
