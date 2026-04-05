@@ -1276,8 +1276,16 @@ function buildCoinBase(n, amount) {
   return dp;
 }
 
-function coinDisplay(dp) {
-  return dp.map(row => row.map(v => v === Infinity ? '∞' : v));
+function coinDisplay(dp, coins, amount) {
+  const n = coins.length;
+  return dp.map((row, i) => row.map((v, j) => {
+    if (v === undefined) return undefined;
+    const isFinal = (i === n && j === amount);
+    // Leave cells blank when this coin can't fit — the exact-amount constraint
+    // means there's nothing to decide here, so don't show a value.
+    if (i > 0 && j > 0 && coins[i-1] > j && !isFinal) return undefined;
+    return v === Infinity ? '∞' : v;
+  }));
 }
 
 function initCoin() {
@@ -1287,12 +1295,20 @@ function initCoin() {
   const amount = clamp(parseInt($('coin-amount').value) || 11, 0, 20);
   const n = coins.length;
   const dp = buildCoinBase(n, amount);
-  coinState = { coins, amount, n, dp, step: -1, totalSteps: (n+1)*(amount+1) };
+  // Base cells are always steps. Non-base cells are steps only when the coin
+  // fits (coins[i-1] <= j); the final answer cell is always kept as a stop.
+  let totalSteps = n + amount + 1;
+  for (let j=1;j<=amount;j++) {
+    for (let i=1;i<=n;i++) {
+      if (coins[i-1] <= j || (i === n && j === amount)) totalSteps++;
+    }
+  }
+  coinState = { coins, amount, n, dp, step: -1, totalSteps };
   $('coin-explain').innerHTML = `Press <strong>Next step</strong> to begin. coins = [${coins.join(', ')}], amount = ${amount}`;
   $('coin-counter').textContent = 'step 0';
   const rowHdr = coins.map(String);
   const colHdr = Array.from({length: amount}, (_, k) => String(k+1));
-  render2D('coin-table', coinDisplay(dp), n, amount, rowHdr, colHdr, -1, -1, null, false);
+  render2D('coin-table', coinDisplay(dp, coins, amount), n, amount, rowHdr, colHdr, -1, -1, null, false);
 }
 
 function coinStep(dir) {
@@ -1312,8 +1328,14 @@ function coinStep(dir) {
         stepCount++;
         continue;
       }
-      const skip = dp[i-1][j];
       const coin = s.coins[i-1];
+      const isFinal = (i === s.n && j === s.amount);
+      if (coin > j && !isFinal) {
+        // coin too big for this amount — auto-inherit and don't stop here
+        dp[i][j] = dp[i-1][j];
+        continue;
+      }
+      const skip = dp[i-1][j];
       let use = Infinity;
       if (j - coin >= 0 && dp[i][j-coin] !== Infinity) use = dp[i][j-coin] + 1;
       dp[i][j] = Math.min(skip, use);
@@ -1338,22 +1360,26 @@ function coinStep(dir) {
     }
   } else {
     const coin = s.coins[curI-1];
-    const skip = dp[curI-1][curJ];
+    // Trace the "skip" source up past any blanked rows (where a bigger coin
+    // didn't fit) so the highlight lands on a visible cell.
+    let srcRow = curI - 1;
+    while (srcRow > 0 && s.coins[srcRow-1] > curJ) srcRow--;
+    const skip = dp[srcRow][curJ];
     const skipStr = skip === Infinity ? '∞' : skip;
     const best = dp[curI][curJ];
     const bestStr = best === Infinity ? '∞' : best;
     if (curJ < coin) {
-      expl = `coin ${coin} &gt; ${curJ} — can't use it. <span class="mono">dp[${curI}][${curJ}] = dp[${curI-1}][${curJ}] = <span class="res">${bestStr}</span></span>`;
-      srcCells = [[curI-1, curJ, 'row']];
+      expl = `coin ${coin} &gt; ${curJ} — can't use it. <span class="mono">dp[${curI}][${curJ}] = dp[${srcRow}][${curJ}] = <span class="res">${bestStr}</span></span>`;
+      srcCells = [[srcRow, curJ, 'row']];
     } else {
       const subUse = dp[curI][curJ-coin];
       const subUseStr = subUse === Infinity ? '∞' : subUse;
       const useCand = subUse === Infinity ? Infinity : subUse + 1;
       const useStr = useCand === Infinity ? '∞' : useCand;
       const pickedUse = useCand < skip;
-      expl = `coin ${coin} ≤ ${curJ}. skip: <span class="mono">dp[${curI-1}][${curJ}]=${skipStr}</span>, use: <span class="mono">dp[${curI}][${curJ-coin}]+1=${subUseStr}+1=${useStr}</span> → <span class="mono">dp[${curI}][${curJ}] = <span class="res">${bestStr}</span></span>`;
+      expl = `coin ${coin} ≤ ${curJ}. skip: <span class="mono">dp[${srcRow}][${curJ}]=${skipStr}</span>, use: <span class="mono">dp[${curI}][${curJ-coin}]+1=${subUseStr}+1=${useStr}</span> → <span class="mono">dp[${curI}][${curJ}] = <span class="res">${bestStr}</span></span>`;
       if (best !== Infinity) expl += pickedUse ? ` — use coin ${coin}` : ` — skip coin ${coin}`;
-      srcCells = [[curI-1, curJ, 'row'], [curI, curJ-coin, 'col']];
+      srcCells = [[srcRow, curJ, 'row'], [curI, curJ-coin, 'col']];
     }
   }
   if (isAnswer) {
@@ -1366,7 +1392,7 @@ function coinStep(dir) {
   const colHdr = Array.from({length: s.amount}, (_, k) => String(k+1));
   $('coin-explain').innerHTML = expl;
   $('coin-counter').textContent = `step ${s.step + 1} / ${total}`;
-  render2D('coin-table', coinDisplay(dp), s.n, s.amount, rowHdr, colHdr, curI, curJ, srcCells, isAnswer);
+  render2D('coin-table', coinDisplay(dp, s.coins, s.amount), s.n, s.amount, rowHdr, colHdr, curI, curJ, srcCells, isAnswer);
   return !isAnswer;
 }
 
