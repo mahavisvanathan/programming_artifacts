@@ -41,6 +41,27 @@
     animation: fadeUp 0.6s ease both;
   }
 
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 6px 11px;
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+  }
+  .back-link:hover {
+    color: var(--text);
+    border-color: var(--text);
+    background: var(--surface);
+  }
+
   .eyebrow {
     font-family: 'DM Mono', monospace;
     font-size: 11px;
@@ -387,6 +408,7 @@
 <body>
 <div class="container">
 
+  <a class="back-link" href="/">← programming artifacts</a>
   <header>
     <div class="eyebrow">LinkedIn SWE — Technical round</div>
     <h1>12-problem<br><em>primer.</em></h1>

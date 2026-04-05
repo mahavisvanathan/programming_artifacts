@@ -50,6 +50,27 @@
     margin-bottom: 2rem;
   }
 
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: #555B73;
+    text-decoration: none;
+    padding: 6px 11px;
+    border: 1px solid #2E3348;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+  }
+  .back-link:hover {
+    color: #E8ECF4;
+    border-color: #555B73;
+    background: #1A1D27;
+  }
+
   .eyebrow {
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
@@ -510,6 +531,7 @@
 <body>
 
 <header>
+  <a class="back-link" href="/">← programming artifacts</a>
   <div class="eyebrow">Algorithm Visualizations — Dynamic Programming</div>
   <h1>Fill the <span>table</span></h1>
   <p class="subtitle">Step through five classic DP problems cell by cell. The key to DP is naming the subproblem before you write any code — the table fills itself once you have that.</p>
