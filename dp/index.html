@@ -1305,8 +1305,8 @@ function coinStep(dir) {
   const dp = buildCoinBase(s.n, s.amount);
 
   let curI = 0, curJ = 0, stepCount = 0;
-  outer: for (let i=0;i<=s.n;i++) {
-    for (let j=0;j<=s.amount;j++) {
+  outer: for (let j=0;j<=s.amount;j++) {
+    for (let i=0;i<=s.n;i++) {
       if (i===0 || j===0) {
         if (stepCount === s.step) { curI=i; curJ=j; break outer; }
         stepCount++;
