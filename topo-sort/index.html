@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Topological Sort — Algorithm Visualizer</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0F1117;
+      --surface:   #1A1D27;
+      --surf-alt:  #242838;
+      --border:    #2E3348;
+      --text:      #E8ECF4;
+      --text-sec:  #8B92A8;
+      --text-dim:  #555B73;
+      --teal:      #3ECFB4;
+      --coral:     #FF6B6B;
+      --amber:     #FFBE59;
+      --blue:      #5B9CF6;
+      --purple:    #A78BFA;
+      --green:     #34D399;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: #0F1117;
+      color: #E8ECF4;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Layout ── */
+    .page-wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    /* ── Header ── */
+    header { margin-bottom: 32px; }
+
+    .eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #A78BFA;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: clamp(28px, 4vw, 40px);
+      line-height: 1.15;
+      margin-bottom: 12px;
+      color: #E8ECF4;
+    }
+
+    h1 span { color: #A78BFA; }
+
+    .subtitle {
+      font-size: 15px;
+      color: #8B92A8;
+      font-weight: 300;
+      max-width: 680px;
+      line-height: 1.7;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: #1A1D27;
+      border: 1px solid #2E3348;
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .card-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #555B73;
+      margin-bottom: 14px;
+    }
+
+    /* ── Problem Description ── */
+    .problem-desc { margin-bottom: 20px; }
+
+    .prob-tag {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #A78BFA;
+      background: rgba(167,139,250,0.1);
+      border: 1px solid rgba(167,139,250,0.25);
+      border-radius: 4px;
+      padding: 3px 10px;
+      margin-bottom: 14px;
+      letter-spacing: 0.05em;
+    }
+
+    .problem-desc p {
+      color: #8B92A8;
+      font-size: 13.5px;
+      line-height: 1.75;
+      margin-bottom: 12px;
+    }
+
+    .problem-desc p:last-child { margin-bottom: 0; }
+
+    .example-box {
+      background: #242838;
+      border: 1px solid #2E3348;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-top: 14px;
+    }
+
+    .example-box .ex-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #555B73;
+      margin-bottom: 6px;
+    }
+
+    .example-box p {
+      font-size: 13px;
+      color: #8B92A8;
+      margin-bottom: 0;
+    }
+
+    .example-box strong { color: #A78BFA; }
+
+    /* ── Meta row ── */
+    .meta-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .meta-row { grid-template-columns: 1fr; }
+    }
+
+    .meta-row p {
+      color: #8B92A8;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .code-block {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      line-height: 1.8;
+      color: #A78BFA;
+      background: #242838;
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin-top: 8px;
+      white-space: pre;
+    }
+
+    /* ── Explain box ── */
+    .explain-box {
+      border-left: 3px solid #A78BFA;
+      background: rgba(167,139,250,0.05);
+      border-radius: 0 8px 8px 0;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      font-size: 13.5px;
+      color: #E8ECF4;
+      min-height: 46px;
+      line-height: 1.7;
+    }
+
+    /* ── Controls ── */
+    .controls-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      padding: 8px 18px;
+      border-radius: 6px;
+      border: 1px solid #2E3348;
+      background: #1A1D27;
+      color: #E8ECF4;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .btn:hover { background: #242838; border-color: #A78BFA; color: #A78BFA; }
+    .btn:active { background: rgba(167,139,250,0.1); }
+
+    .btn-play {
+      background: rgba(167,139,250,0.12);
+      border-color: #A78BFA;
+      color: #A78BFA;
+    }
+
+    .btn-play:hover {
+      background: rgba(167,139,250,0.22);
+      color: #A78BFA;
+    }
+
+    .btn-reset {
+      border-color: rgba(255,107,107,0.4);
+      color: #FF6B6B;
+    }
+
+    .btn-reset:hover {
+      background: rgba(255,107,107,0.08);
+      border-color: #FF6B6B;
+      color: #FF6B6B;
+    }
+
+    .step-counter {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #555B73;
+    }
+
+    /* ── Legend ── */
+    .legend {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      padding: 12px 16px;
+      background: #1A1D27;
+      border: 1px solid #2E3348;
+      border-radius: 8px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      color: #8B92A8;
+    }
+
+    .swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border-width: 2px;
+      border-style: solid;
+      flex-shrink: 0;
+    }
+
+    .swatch-blocked  { background: #1A1D27; border-color: #2E3348; }
+    .swatch-queued   { background: rgba(91,156,246,0.14); border-color: #5B9CF6; }
+    .swatch-current  { background: rgba(167,139,250,0.18); border-color: #A78BFA; }
+    .swatch-done     { background: rgba(52,211,153,0.14); border-color: #34D399; }
+
+    .edge-swatch {
+      width: 24px;
+      height: 3px;
+      border-radius: 2px;
+      background: #FFBE59;
+    }
+
+    /* ── Main viz layout ── */
+    .viz-layout {
+      display: grid;
+      grid-template-columns: 1fr 260px;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 760px) {
+      .viz-layout { grid-template-columns: 1fr; }
+    }
+
+    /* ── SVG ── */
+    .svg-card {
+      background: #1A1D27;
+      border: 1px solid #2E3348;
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      max-width: 640px;
+      display: block;
+    }
+
+    /* ── SVG element states ── */
+    .state-blocked   { fill: #1A1D27; stroke: #2E3348; stroke-width: 2; transition: all 0.25s; }
+    .state-queued    { fill: rgba(91,156,246,0.14); stroke: #5B9CF6; stroke-width: 2; transition: all 0.25s; }
+    .state-current   {
+      fill: rgba(167,139,250,0.18);
+      stroke: #A78BFA;
+      stroke-width: 2.5;
+      filter: drop-shadow(0 0 8px rgba(167,139,250,0.5));
+      transition: all 0.25s;
+    }
+    .state-done      { fill: rgba(52,211,153,0.14); stroke: #34D399; stroke-width: 2; transition: all 0.25s; }
+
+    .edge-default  { stroke: rgba(255,255,255,0.12); stroke-width: 1.5; transition: all 0.3s; }
+    .edge-active   { stroke: #FFBE59; stroke-width: 3; filter: drop-shadow(0 0 6px rgba(255,190,89,0.6)); transition: all 0.3s; }
+    .edge-removed  { stroke: rgba(52,211,153,0.25); stroke-width: 1.5; stroke-dasharray: 5 4; transition: all 0.3s; }
+
+    .node-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 700;
+      fill: #E8ECF4;
+      dominant-baseline: central;
+      text-anchor: middle;
+      pointer-events: none;
+    }
+
+    .indeg-bg {
+      fill: #0F1117;
+      stroke: #2E3348;
+      stroke-width: 1;
+      rx: 8;
+      transition: all 0.25s;
+    }
+
+    .indeg-bg.indeg-zero {
+      stroke: #5B9CF6;
+      fill: rgba(91,156,246,0.12);
+    }
+
+    .indeg-bg.indeg-done {
+      stroke: #34D399;
+      fill: rgba(52,211,153,0.12);
+    }
+
+    .indeg-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      fill: #8B92A8;
+      dominant-baseline: central;
+      text-anchor: middle;
+      pointer-events: none;
+      transition: fill 0.25s;
+    }
+
+    .indeg-text.indeg-zero { fill: #5B9CF6; }
+    .indeg-text.indeg-done { fill: #34D399; }
+
+    /* ── Side panel ── */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* ── Queue list ── */
+    .queue-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .queue-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 12px;
+      border-radius: 6px;
+      border: 1px solid #2E3348;
+      background: #242838;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #8B92A8;
+    }
+
+    .queue-item.queue-front {
+      border-color: #5B9CF6;
+      background: rgba(91,156,246,0.08);
+      color: #5B9CF6;
+    }
+
+    .queue-item .q-node { font-weight: 700; color: #E8ECF4; }
+    .queue-item.queue-front .q-node { color: #5B9CF6; }
+    .queue-item .q-tag {
+      font-size: 10px;
+      color: #555B73;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .queue-item.queue-front .q-tag { color: #5B9CF6; }
+
+    .queue-empty {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #555B73;
+      padding: 8px 4px;
+    }
+
+    /* ── Order list ── */
+    .order-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .order-item {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: 1px solid #2E3348;
+      background: #242838;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: #34D399;
+      position: relative;
+    }
+
+    .order-slot {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: 1px dashed #2E3348;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #2E3348;
+    }
+
+    .order-empty {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #555B73;
+      padding: 8px 4px;
+    }
+
+    /* ── Complexity badges ── */
+    .badge-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 4px 12px;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    .badge-purple { background: rgba(167,139,250,0.12); color: #A78BFA; border: 1px solid rgba(167,139,250,0.25); }
+    .badge-teal   { background: rgba(62,207,180,0.10); color: #3ECFB4; border: 1px solid rgba(62,207,180,0.22); }
+    .badge-amber  { background: rgba(255,190,89,0.10); color: #FFBE59; border: 1px solid rgba(255,190,89,0.22); }
+
+    /* ── Notes panel ── */
+    .notes-panel { margin-bottom: 32px; }
+
+    details {
+      background: #1A1D27;
+      border: 1px solid #2E3348;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    summary {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #555B73;
+      padding: 14px 20px;
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+    summary::before { content: '▶  '; color: #A78BFA; font-size: 10px; }
+    details[open] summary::before { content: '▼  '; }
+    summary:hover { color: #8B92A8; }
+
+    .notes-content {
+      padding: 0 20px 18px;
+      border-top: 1px solid #2E3348;
+    }
+
+    .notes-content dl {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 6px 16px;
+      margin-top: 14px;
+    }
+
+    .notes-content dt {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #A78BFA;
+      white-space: nowrap;
+      padding-top: 1px;
+    }
+
+    .notes-content dd {
+      font-size: 13px;
+      color: #8B92A8;
+      line-height: 1.65;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #555B73;
+      letter-spacing: 0.1em;
+      padding-top: 16px;
+      border-top: 1px solid #2E3348;
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- Header -->
+  <header>
+    <div class="eyebrow">Algorithm Visualizations — Graph Algorithms</div>
+    <h1>Topological <span>Sort</span></h1>
+    <p class="subtitle">Kahn's algorithm, step by step. Peel off the nodes with no prerequisites, one at a time, and watch the dependency graph collapse into a linear ordering.</p>
+  </header>
+
+  <!-- Problem description -->
+  <div class="card problem-desc">
+    <div class="prob-tag">LeetCode #207 · Course Schedule · BFS + In-degree</div>
+    <p>
+      Given <strong style="color:#E8ECF4;">numCourses</strong> and a list of prerequisite pairs <code style="font-family:'JetBrains Mono',monospace;color:#A78BFA;">[a, b]</code>
+      meaning "to take course <em>a</em> you must first take course <em>b</em>", determine whether it's possible to finish all courses.
+    </p>
+    <p>
+      A valid schedule exists <strong style="color:#E8ECF4;">if and only if</strong> the prerequisite graph is a DAG
+      (no cycles). Kahn's algorithm produces a valid topological order by repeatedly picking a node with
+      <em style="color:#A78BFA;">zero remaining prerequisites</em>. If every node eventually makes it out, no cycle exists.
+    </p>
+    <div class="example-box">
+      <div class="ex-label">Cycle detection</div>
+      <p>
+        If Kahn's finishes with fewer than <strong>n</strong> nodes in the order, the leftover nodes are stuck in a
+        cycle — each one waits on another whose in-degree will never reach zero. Return <strong>false</strong>.
+      </p>
+    </div>
+  </div>
+
+  <!-- Meta row -->
+  <div class="meta-row">
+    <div class="card">
+      <div class="card-title">Core Idea</div>
+      <p>A node can be taken as soon as all of its prerequisites are done. Kahn's tracks that by keeping an <strong style="color:#A78BFA;">in-degree counter</strong> per node and a queue of nodes whose counter has dropped to zero.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Kahn's Algorithm</div>
+      <div class="code-block">in_deg = count incoming edges
+queue  = [n for n in nodes if in_deg[n] == 0]
+while queue:
+  u = queue.popleft()
+  order.append(u)
+  for v in adj[u]:
+    in_deg[v] -= 1
+    if in_deg[v] == 0:
+      queue.append(v)</div>
+    </div>
+  </div>
+
+  <!-- Explain box -->
+  <div class="explain-box" id="explain">Compute in-degree for every node. Nodes with in-degree 0 have no prerequisites and are ready to take.</div>
+
+  <!-- Controls -->
+  <div class="controls-row">
+    <button class="btn" id="btn-prev" onclick="step(-1)">← Prev</button>
+    <button class="btn btn-play" id="btn-play" onclick="togglePlay()">▶ Play</button>
+    <button class="btn" id="btn-next" onclick="step(1)">Next →</button>
+    <button class="btn btn-reset" onclick="resetViz()">↺ Reset</button>
+    <span class="step-counter" id="step-counter">Step 1 / 21</span>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item">
+      <div class="swatch swatch-blocked"></div>
+      <span>Blocked (in-degree &gt; 0)</span>
+    </div>
+    <div class="legend-item">
+      <div class="swatch swatch-queued"></div>
+      <span>In queue (ready)</span>
+    </div>
+    <div class="legend-item">
+      <div class="swatch swatch-current"></div>
+      <span>Processing</span>
+    </div>
+    <div class="legend-item">
+      <div class="swatch swatch-done"></div>
+      <span>Done</span>
+    </div>
+    <div class="legend-item">
+      <div class="edge-swatch"></div>
+      <span>Edge being removed</span>
+    </div>
+  </div>
+
+  <!-- Viz layout -->
+  <div class="viz-layout">
+
+    <!-- SVG graph -->
+    <div class="svg-card">
+      <svg viewBox="0 0 640 430" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrow-default" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(255,255,255,0.25)"/>
+          </marker>
+          <marker id="arrow-active" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#FFBE59"/>
+          </marker>
+          <marker id="arrow-removed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(52,211,153,0.4)"/>
+          </marker>
+        </defs>
+
+        <!-- Edges (directed) -->
+        <line id="el-0-1" class="edge-default" x1="290" y1="77"  x2="207" y2="147" marker-end="url(#arrow-default)"/>
+        <line id="el-0-2" class="edge-default" x1="330" y1="77"  x2="413" y2="147" marker-end="url(#arrow-default)"/>
+        <line id="el-1-3" class="edge-default" x1="195" y1="191" x2="239" y2="251" marker-end="url(#arrow-default)"/>
+        <line id="el-2-3" class="edge-default" x1="418" y1="184" x2="291" y2="261" marker-end="url(#arrow-default)"/>
+        <line id="el-2-4" class="edge-default" x1="455" y1="191" x2="499" y2="251" marker-end="url(#arrow-default)"/>
+        <line id="el-3-5" class="edge-default" x1="281" y1="296" x2="361" y2="358" marker-end="url(#arrow-default)"/>
+        <line id="el-4-5" class="edge-default" x1="499" y1="296" x2="419" y2="358" marker-end="url(#arrow-default)"/>
+
+        <!-- Nodes -->
+        <!-- 0 -->
+        <circle id="nd-0" class="state-blocked" cx="310" cy="60" r="26"/>
+        <text x="310" y="60" class="node-label">0</text>
+        <rect id="ib-0" class="indeg-bg" x="334" y="24" width="20" height="16"/>
+        <text id="it-0" x="344" y="32" class="indeg-text">0</text>
+
+        <!-- 1 -->
+        <circle id="nd-1" class="state-blocked" cx="180" cy="170" r="26"/>
+        <text x="180" y="170" class="node-label">1</text>
+        <rect id="ib-1" class="indeg-bg" x="134" y="162" width="20" height="16"/>
+        <text id="it-1" x="144" y="170" class="indeg-text">1</text>
+
+        <!-- 2 -->
+        <circle id="nd-2" class="state-blocked" cx="440" cy="170" r="26"/>
+        <text x="440" y="170" class="node-label">2</text>
+        <rect id="ib-2" class="indeg-bg" x="466" y="162" width="20" height="16"/>
+        <text id="it-2" x="476" y="170" class="indeg-text">1</text>
+
+        <!-- 3 -->
+        <circle id="nd-3" class="state-blocked" cx="260" cy="280" r="26"/>
+        <text x="260" y="280" class="node-label">3</text>
+        <rect id="ib-3" class="indeg-bg" x="214" y="272" width="20" height="16"/>
+        <text id="it-3" x="224" y="280" class="indeg-text">2</text>
+
+        <!-- 4 -->
+        <circle id="nd-4" class="state-blocked" cx="520" cy="280" r="26"/>
+        <text x="520" y="280" class="node-label">4</text>
+        <rect id="ib-4" class="indeg-bg" x="546" y="272" width="20" height="16"/>
+        <text id="it-4" x="556" y="280" class="indeg-text">1</text>
+
+        <!-- 5 -->
+        <circle id="nd-5" class="state-blocked" cx="390" cy="380" r="26"/>
+        <text x="390" y="380" class="node-label">5</text>
+        <rect id="ib-5" class="indeg-bg" x="380" y="408" width="20" height="16"/>
+        <text id="it-5" x="390" y="416" class="indeg-text">2</text>
+      </svg>
+    </div>
+
+    <!-- Side panel -->
+    <div class="side-panel">
+
+      <!-- Queue -->
+      <div class="card">
+        <div class="card-title">Queue (FIFO)</div>
+        <ul class="queue-list" id="queue-list">
+          <!-- Populated by JS -->
+        </ul>
+      </div>
+
+      <!-- Order -->
+      <div class="card">
+        <div class="card-title">Topological Order</div>
+        <div class="order-list" id="order-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Complexity badges -->
+  <div class="badge-row">
+    <span class="badge badge-purple">time: O(V + E)</span>
+    <span class="badge badge-teal">space: O(V + E)</span>
+    <span class="badge badge-amber">pattern: BFS + in-degree</span>
+  </div>
+
+  <!-- Notes panel -->
+  <div class="notes-panel">
+    <details>
+      <summary>Implementation Notes</summary>
+      <div class="notes-content">
+        <dl>
+          <dt>Key Insight</dt>
+          <dd>A node is safe to process once every incoming edge has been removed — i.e. every prerequisite has already been handled. The in-degree counter is exactly "how many prerequisites remain."</dd>
+
+          <dt>Cycle Check</dt>
+          <dd>If the final order contains fewer than n nodes, at least one cycle exists. The stranded nodes form the cycle (or sit downstream of it).</dd>
+
+          <dt>Edge Direction</dt>
+          <dd>For LC #207, prerequisite pair [a, b] means b → a (take b before a). In-degree of a counts how many courses must be finished before a can be taken.</dd>
+
+          <dt>Time</dt>
+          <dd>O(V + E) — each node enqueued once, each edge scanned once</dd>
+
+          <dt>Space</dt>
+          <dd>O(V + E) for adjacency list + O(V) for in-degree + queue</dd>
+
+          <dt>DFS Alternative</dt>
+          <dd>Topological sort can also be done via DFS post-order with a three-color cycle check (white/gray/black). Kahn's tends to be simpler for interview settings.</dd>
+
+          <dt>Non-uniqueness</dt>
+          <dd>A DAG can have many valid topological orders. The queue's tie-breaking (FIFO here) picks one of them.</dd>
+        </dl>
+      </div>
+    </details>
+  </div>
+
+  <!-- Footer -->
+  <footer>topological sort — peel the dependencies, in order</footer>
+
+</div>
+
+<script>
+  // ─── Step data ───────────────────────────────────────────────────────────────
+  // Graph: 0 → 1, 0 → 2, 1 → 3, 2 → 3, 2 → 4, 3 → 5, 4 → 5
+  const STEPS = [
+    // 1. Init
+    {
+      inDeg:   {0:0, 1:1, 2:1, 3:2, 4:1, 5:2},
+      queue:   [],
+      order:   [],
+      current: null,
+      activeEdge: null,
+      removedEdges: [],
+      explanation: 'Compute in-degree for every node. Nodes with in-degree 0 have no prerequisites and are ready to take.',
+    },
+    // 2. Enqueue zero-in-degree
+    {
+      inDeg:   {0:0, 1:1, 2:1, 3:2, 4:1, 5:2},
+      queue:   [0],
+      order:   [],
+      current: null,
+      activeEdge: null,
+      removedEdges: [],
+      explanation: 'Scan in-degrees: only node 0 has in-degree 0. Add it to the queue.',
+    },
+    // 3. Extract 0 → order
+    {
+      inDeg:   {0:0, 1:1, 2:1, 3:2, 4:1, 5:2},
+      queue:   [],
+      order:   [0],
+      current: 0,
+      activeEdge: null,
+      removedEdges: [],
+      explanation: 'Dequeue 0. Append to the topological order.',
+    },
+    // 4. Decrement 0→1
+    {
+      inDeg:   {0:0, 1:0, 2:1, 3:2, 4:1, 5:2},
+      queue:   [],
+      order:   [0],
+      current: 0,
+      activeEdge: '0-1',
+      removedEdges: [],
+      explanation: 'Remove edge 0 → 1. Decrement in-degree[1]: 1 → 0.',
+    },
+    // 5. Enqueue 1
+    {
+      inDeg:   {0:0, 1:0, 2:1, 3:2, 4:1, 5:2},
+      queue:   [1],
+      order:   [0],
+      current: 0,
+      activeEdge: null,
+      removedEdges: ['0-1'],
+      explanation: 'in-degree[1] hit 0 — enqueue 1.',
+    },
+    // 6. Decrement 0→2
+    {
+      inDeg:   {0:0, 1:0, 2:0, 3:2, 4:1, 5:2},
+      queue:   [1],
+      order:   [0],
+      current: 0,
+      activeEdge: '0-2',
+      removedEdges: ['0-1'],
+      explanation: 'Remove edge 0 → 2. Decrement in-degree[2]: 1 → 0.',
+    },
+    // 7. Enqueue 2
+    {
+      inDeg:   {0:0, 1:0, 2:0, 3:2, 4:1, 5:2},
+      queue:   [1, 2],
+      order:   [0],
+      current: null,
+      activeEdge: null,
+      removedEdges: ['0-1', '0-2'],
+      explanation: 'in-degree[2] hit 0 — enqueue 2. Node 0 is done; all its outgoing edges removed.',
+    },
+    // 8. Extract 1
+    {
+      inDeg:   {0:0, 1:0, 2:0, 3:2, 4:1, 5:2},
+      queue:   [2],
+      order:   [0, 1],
+      current: 1,
+      activeEdge: null,
+      removedEdges: ['0-1', '0-2'],
+      explanation: 'Dequeue 1 (FIFO front). Append to order.',
+    },
+    // 9. Decrement 1→3
+    {
+      inDeg:   {0:0, 1:0, 2:0, 3:1, 4:1, 5:2},
+      queue:   [2],
+      order:   [0, 1],
+      current: 1,
+      activeEdge: '1-3',
+      removedEdges: ['0-1', '0-2'],
+      explanation: 'Remove edge 1 → 3. Decrement in-degree[3]: 2 → 1. Still blocked by node 2.',
+    },
+    // 10. Extract 2
+    {
+      inDeg:   {0:0, 1:0, 2:0, 3:1, 4:1, 5:2},
+      queue:   [],
+      order:   [0, 1, 2],
+      current: 2,
+      activeEdge: null,
+      removedEdges: ['0-1', '0-2', '1-3'],
+      explanation: 'Dequeue 2. Append to order. Node 1 is done.',
+    },
+    // 11. Decrement 2→3
+    {
+      inDeg:   {0:0, 1:0, 2:0, 3:0, 4:1, 5:2},
+      queue:   [],
+      order:   [0, 1, 2],
+      current: 2,
+      activeEdge: '2-3',
+      removedEdges: ['0-1', '0-2', '1-3'],
+      explanation: 'Remove edge 2 → 3. Decrement in-degree[3]: 1 → 0.',
+    },
+    // 12. Enqueue 3
+    {
+      inDeg:   {0:0, 1:0, 2:0, 3:0, 4:1, 5:2},
+      queue:   [3],
+      order:   [0, 1, 2],
+      current: 2,
+      activeEdge: null,
+      removedEdges: ['0-1', '0-2', '1-3', '2-3'],
+      explanation: 'in-degree[3] hit 0 — enqueue 3.',
+    },
+    // 13. Decrement 2→4
+    {
+      inDeg:   {0:0, 1:0, 2:0, 3:0, 4:0, 5:2},
+      queue:   [3],
+      order:   [0, 1, 2],
+      current: 2,
+      activeEdge: '2-4',
+      removedEdges: ['0-1', '0-2', '1-3', '2-3'],
+      explanation: 'Remove edge 2 → 4. Decrement in-degree[4]: 1 → 0.',
+    },
+    // 14. Enqueue 4
+    {
+      inDeg:   {0:0, 1:0, 2:0, 3:0, 4:0, 5:2},
+      queue:   [3, 4],
+      order:   [0, 1, 2],
+      current: null,
+      activeEdge: null,
+      removedEdges: ['0-1', '0-2', '1-3', '2-3', '2-4'],
+      explanation: 'in-degree[4] hit 0 — enqueue 4. Node 2 is done.',
+    },
+    // 15. Extract 3
+    {
+      inDeg:   {0:0, 1:0, 2:0, 3:0, 4:0, 5:2},
+      queue:   [4],
+      order:   [0, 1, 2, 3],
+      current: 3,
+      activeEdge: null,
+      removedEdges: ['0-1', '0-2', '1-3', '2-3', '2-4'],
+      explanation: 'Dequeue 3. Append to order.',
+    },
+    // 16. Decrement 3→5
+    {
+      inDeg:   {0:0, 1:0, 2:0, 3:0, 4:0, 5:1},
+      queue:   [4],
+      order:   [0, 1, 2, 3],
+      current: 3,
+      activeEdge: '3-5',
+      removedEdges: ['0-1', '0-2', '1-3', '2-3', '2-4'],
+      explanation: 'Remove edge 3 → 5. Decrement in-degree[5]: 2 → 1. Still blocked by node 4.',
+    },
+    // 17. Extract 4
+    {
+      inDeg:   {0:0, 1:0, 2:0, 3:0, 4:0, 5:1},
+      queue:   [],
+      order:   [0, 1, 2, 3, 4],
+      current: 4,
+      activeEdge: null,
+      removedEdges: ['0-1', '0-2', '1-3', '2-3', '2-4', '3-5'],
+      explanation: 'Dequeue 4. Append to order. Node 3 is done.',
+    },
+    // 18. Decrement 4→5
+    {
+      inDeg:   {0:0, 1:0, 2:0, 3:0, 4:0, 5:0},
+      queue:   [],
+      order:   [0, 1, 2, 3, 4],
+      current: 4,
+      activeEdge: '4-5',
+      removedEdges: ['0-1', '0-2', '1-3', '2-3', '2-4', '3-5'],
+      explanation: 'Remove edge 4 → 5. Decrement in-degree[5]: 1 → 0.',
+    },
+    // 19. Enqueue 5
+    {
+      inDeg:   {0:0, 1:0, 2:0, 3:0, 4:0, 5:0},
+      queue:   [5],
+      order:   [0, 1, 2, 3, 4],
+      current: null,
+      activeEdge: null,
+      removedEdges: ['0-1', '0-2', '1-3', '2-3', '2-4', '3-5', '4-5'],
+      explanation: 'in-degree[5] hit 0 — enqueue 5. Node 4 is done; all edges removed.',
+    },
+    // 20. Extract 5
+    {
+      inDeg:   {0:0, 1:0, 2:0, 3:0, 4:0, 5:0},
+      queue:   [],
+      order:   [0, 1, 2, 3, 4, 5],
+      current: 5,
+      activeEdge: null,
+      removedEdges: ['0-1', '0-2', '1-3', '2-3', '2-4', '3-5', '4-5'],
+      explanation: 'Dequeue 5. Append to order. Queue is empty.',
+    },
+    // 21. Done
+    {
+      inDeg:   {0:0, 1:0, 2:0, 3:0, 4:0, 5:0},
+      queue:   [],
+      order:   [0, 1, 2, 3, 4, 5],
+      current: null,
+      activeEdge: null,
+      removedEdges: ['0-1', '0-2', '1-3', '2-3', '2-4', '3-5', '4-5'],
+      explanation: 'Order has all 6 courses → no cycle. Return true. Topological sort: [0, 1, 2, 3, 4, 5].',
+      done: true,
+    },
+  ];
+
+  const NODES = [0, 1, 2, 3, 4, 5];
+  const EDGES = ['0-1', '0-2', '1-3', '2-3', '2-4', '3-5', '4-5'];
+  const TOTAL_NODES = NODES.length;
+
+  // ─── State ────────────────────────────────────────────────────────────────────
+  let currentIdx = 0;
+  let playInterval = null;
+  let isPlaying = false;
+
+  // ─── Render ───────────────────────────────────────────────────────────────────
+  function render(idx) {
+    const s = STEPS[idx];
+
+    // 1. Explain
+    document.getElementById('explain').textContent = s.explanation;
+
+    // 2. Step counter
+    document.getElementById('step-counter').textContent = `Step ${idx + 1} / ${STEPS.length}`;
+
+    // 3. Edges
+    EDGES.forEach(e => {
+      const el = document.getElementById('el-' + e);
+      if (s.activeEdge === e) {
+        el.setAttribute('class', 'edge-active');
+        el.setAttribute('marker-end', 'url(#arrow-active)');
+      } else if (s.removedEdges.includes(e)) {
+        el.setAttribute('class', 'edge-removed');
+        el.setAttribute('marker-end', 'url(#arrow-removed)');
+      } else {
+        el.setAttribute('class', 'edge-default');
+        el.setAttribute('marker-end', 'url(#arrow-default)');
+      }
+    });
+
+    // 4. Nodes + in-degree badges
+    NODES.forEach(n => {
+      const circle = document.getElementById('nd-' + n);
+      const deg = s.inDeg[n];
+      const inOrder = s.order.includes(n);
+      const isCurrent = s.current === n;
+      const inQueue = s.queue.includes(n);
+
+      let state;
+      if (isCurrent) state = 'state-current';
+      else if (inOrder) state = 'state-done';
+      else if (inQueue) state = 'state-queued';
+      else state = 'state-blocked';
+      circle.setAttribute('class', state);
+
+      // In-degree badge
+      const bg = document.getElementById('ib-' + n);
+      const text = document.getElementById('it-' + n);
+      text.textContent = deg;
+
+      let degClass = '';
+      if (inOrder) degClass = 'indeg-done';
+      else if (deg === 0) degClass = 'indeg-zero';
+      bg.setAttribute('class', 'indeg-bg' + (degClass ? ' ' + degClass : ''));
+      text.setAttribute('class', 'indeg-text' + (degClass ? ' ' + degClass : ''));
+    });
+
+    // 5. Queue panel
+    const queueList = document.getElementById('queue-list');
+    queueList.innerHTML = '';
+    if (s.queue.length === 0) {
+      const empty = document.createElement('li');
+      empty.className = 'queue-empty';
+      empty.textContent = '(empty)';
+      queueList.appendChild(empty);
+    } else {
+      s.queue.forEach((n, i) => {
+        const li = document.createElement('li');
+        li.className = 'queue-item' + (i === 0 ? ' queue-front' : '');
+        li.innerHTML = `<span class="q-node">${n}</span><span class="q-tag">${i === 0 ? 'front' : ''}</span>`;
+        queueList.appendChild(li);
+      });
+    }
+
+    // 6. Order panel
+    const orderList = document.getElementById('order-list');
+    orderList.innerHTML = '';
+    if (s.order.length === 0) {
+      // Show all empty slots
+      for (let i = 0; i < TOTAL_NODES; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'order-slot';
+        slot.textContent = i + 1;
+        orderList.appendChild(slot);
+      }
+    } else {
+      s.order.forEach(n => {
+        const item = document.createElement('div');
+        item.className = 'order-item';
+        item.textContent = n;
+        orderList.appendChild(item);
+      });
+      for (let i = s.order.length; i < TOTAL_NODES; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'order-slot';
+        slot.textContent = i + 1;
+        orderList.appendChild(slot);
+      }
+    }
+  }
+
+  // ─── Controls ─────────────────────────────────────────────────────────────────
+  function step(delta) {
+    const next = currentIdx + delta;
+    if (next < 0 || next >= STEPS.length) return;
+    currentIdx = next;
+    render(currentIdx);
+    updateButtons();
+  }
+
+  function updateButtons() {
+    document.getElementById('btn-prev').disabled = currentIdx === 0;
+    document.getElementById('btn-next').disabled = currentIdx === STEPS.length - 1;
+  }
+
+  function togglePlay() {
+    if (isPlaying) {
+      clearInterval(playInterval);
+      isPlaying = false;
+      document.getElementById('btn-play').textContent = '▶ Play';
+    } else {
+      isPlaying = true;
+      document.getElementById('btn-play').textContent = '⏸ Pause';
+      playInterval = setInterval(() => {
+        if (currentIdx >= STEPS.length - 1) {
+          clearInterval(playInterval);
+          isPlaying = false;
+          document.getElementById('btn-play').textContent = '▶ Play';
+        } else {
+          step(1);
+        }
+      }, 1100);
+    }
+  }
+
+  function resetViz() {
+    if (isPlaying) togglePlay();
+    currentIdx = 0;
+    render(0);
+    updateButtons();
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') step(1);
+    else if (e.key === 'ArrowLeft') step(-1);
+    else if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+  });
+
+  // ─── Init ─────────────────────────────────────────────────────────────────────
+  render(0);
+  updateButtons();
+</script>
+</body>
+</html>
