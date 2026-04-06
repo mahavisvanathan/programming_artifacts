@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minimum Window Substring — Visual Guide</title>
+<meta name="description" content="Watch the sliding window algorithm find the minimum window substring. Step-by-step visualizer for LeetCode #76 with live pointer tracking and frequency maps.">
+<meta name="author" content="Mahalakshumi Visvanathan">
+<link rel="canonical" href="https://mahav.io/min-window">
+<meta property="og:title" content="Minimum Window Substring — LeetCode #76 Visualizer">
+<meta property="og:description" content="Sliding window algorithm visualized step by step. Watch L and R pointers find the smallest valid window containing all target characters.">
+<meta property="og:url" content="https://mahav.io/min-window">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="dsa-notebook">
+<meta name="twitter:card" content="summary">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="theme-color" content="#0F1117">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #0F1117;
+  color: #E8ECF4;
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* ── HEADER ──────────────────────────────────────────────── */
+header {
+  padding: 3rem 2rem 2rem;
+  max-width: 980px;
+  margin: 0 auto;
+  border-bottom: 1px solid #2E3348;
+  margin-bottom: 2rem;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: #555B73;
+  text-decoration: none;
+  padding: 6px 11px;
+  border: 1px solid #2E3348;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.back-link:hover {
+  color: #E8ECF4;
+  border-color: #555B73;
+  background: #1A1D27;
+}
+
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #A78BFA;
+  margin-bottom: 12px;
+}
+
+h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(1.6rem, 4vw, 2.9rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 14px;
+}
+
+h1 span { color: #A78BFA; }
+
+.header-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.meta-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+
+.pill-diff  { background: rgba(255,107,107,0.1); color: #FF6B6B; border-color: rgba(255,107,107,0.25); }
+.pill-pat   { background: rgba(62,207,180,0.1);  color: #3ECFB4; border-color: rgba(62,207,180,0.2); }
+.pill-num   { background: transparent; color: #555B73; border-color: #2E3348; }
+
+/* ── PAGE WRAP ───────────────────────────────────────────── */
+.page-wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem;
+}
+
+/* ── PROBLEM DESC ────────────────────────────────────────── */
+.problem-desc {
+  background: #1A1D27;
+  border: 1px solid #2E3348;
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.prob-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #A78BFA;
+  margin-bottom: 8px;
+}
+
+.prob-statement {
+  font-size: 14px;
+  color: #E8ECF4;
+  line-height: 1.8;
+  margin-bottom: 12px;
+}
+
+.prob-statement strong { color: #3ECFB4; font-weight: 500; }
+
+.prob-example {
+  background: #242838;
+  border: 1px solid #2E3348;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #8B92A8;
+  line-height: 1.9;
+}
+
+.prob-ex-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #555B73;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.ex-hi  { color: #3ECFB4; }
+.ex-ans { color: #34D399; }
+
+/* ── VIZ CANVAS ──────────────────────────────────────────── */
+.viz-canvas {
+  background: #1A1D27;
+  border: 1px solid #2E3348;
+  border-radius: 10px;
+  padding: 2rem;
+  margin-bottom: 1.25rem;
+}
+
+.viz-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #555B73;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+/* String cells */
+.string-row {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.cell-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.cell-idx {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: #555B73;
+}
+
+.char-cell {
+  width: 46px;
+  height: 46px;
+  border-radius: 8px;
+  border: 1.5px solid #2E3348;
+  background: #1A1D27;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  color: #8B92A8;
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  cursor: default;
+  user-select: none;
+}
+
+.cell-ptr {
+  height: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+/* ── CELL STATES ─────────────────────────────────────────── */
+.cs-default  { background: #1A1D27; border-color: #2E3348; color: #555B73; }
+.cs-window   { background: rgba(99,102,241,0.08); border-color: rgba(99,102,241,0.3); color: #818CF8; }
+.cs-needed   { background: rgba(62,207,180,0.16); border-color: #3ECFB4; color: #3ECFB4; }
+.cs-active   { background: rgba(167,139,250,0.2); border-color: #A78BFA; color: #C4B5FD; box-shadow: 0 0 14px rgba(167,139,250,0.35); }
+.cs-shrink   { background: rgba(255,107,107,0.14); border-color: #FF6B6B; color: #FF6B6B; box-shadow: 0 0 14px rgba(255,107,107,0.35); }
+.cs-best     { background: rgba(52,211,153,0.12); border-color: rgba(52,211,153,0.5); color: #34D399; }
+
+/* Frequency badges */
+.freq-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.freq-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #2E3348;
+  background: #242838;
+  transition: all 0.3s;
+}
+
+.freq-char {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.freq-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+}
+
+.freq-sat {
+  border-color: rgba(52,211,153,0.4);
+  background: rgba(52,211,153,0.08);
+}
+.freq-sat .freq-char  { color: #34D399; }
+.freq-sat .freq-count { color: #34D399; }
+
+.freq-unsat {
+  border-color: #2E3348;
+}
+.freq-unsat .freq-char  { color: #555B73; }
+.freq-unsat .freq-count { color: #555B73; }
+
+/* Formed + best bar */
+.info-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 10px 20px;
+  background: #242838;
+  border-radius: 8px;
+  border: 1px solid #2E3348;
+  flex-wrap: wrap;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #555B73;
+}
+
+.info-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 700;
+  transition: color 0.3s;
+}
+
+/* Phase indicators */
+.phase-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.phase-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 3px 12px;
+  border-radius: 20px;
+  background: #242838;
+  color: #555B73;
+  border: 1px solid #2E3348;
+  transition: all 0.3s;
+}
+
+.phase-chip.active-expand {
+  background: rgba(167,139,250,0.12);
+  color: #A78BFA;
+  border-color: rgba(167,139,250,0.35);
+}
+
+.phase-chip.active-shrink {
+  background: rgba(255,107,107,0.1);
+  color: #FF6B6B;
+  border-color: rgba(255,107,107,0.3);
+}
+
+/* ── CONTROLS ────────────────────────────────────────────── */
+.ctrl-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.ctrl-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid #2E3348;
+  background: transparent;
+  color: #E8ECF4;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.ctrl-btn:hover  { background: #242838; }
+.ctrl-btn.primary { border-color: #A78BFA; color: #A78BFA; background: rgba(167,139,250,0.1); }
+.ctrl-btn.playing { border-color: #FF6B6B; color: #FF6B6B; background: rgba(255,107,107,0.1); }
+
+.step-counter {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #555B73;
+  margin-left: auto;
+}
+
+/* ── LEGEND ──────────────────────────────────────────────── */
+.legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.leg-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #8B92A8;
+}
+
+.leg-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  flex-shrink: 0;
+}
+
+/* ── EXPLAIN BOX ─────────────────────────────────────────── */
+.explain-box {
+  background: #1A1D27;
+  border: 1px solid #2E3348;
+  border-left: 3px solid #A78BFA;
+  border-radius: 0 8px 8px 0;
+  padding: 12px 16px;
+  margin-bottom: 1.25rem;
+  font-size: 13px;
+  color: #E8ECF4;
+  line-height: 1.7;
+  min-height: 52px;
+  transition: all 0.2s;
+}
+
+/* ── BOTTOM PANELS ───────────────────────────────────────── */
+.bottom-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 620px) { .bottom-panels { grid-template-columns: 1fr; } }
+
+.panel-card {
+  background: #1A1D27;
+  border: 1px solid #2E3348;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.panel-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #555B73;
+  margin-bottom: 12px;
+}
+
+/* State snapshot */
+.state-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.state-item {
+  background: #242838;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.state-key {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #555B73;
+  margin-bottom: 4px;
+}
+
+.state-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  transition: color 0.3s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Pseudocode */
+.code-block {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1.8;
+  background: #242838;
+  border-radius: 6px;
+  padding: 10px 0;
+  overflow-x: auto;
+}
+
+.code-line {
+  padding: 0 12px;
+  border-left: 3px solid transparent;
+  white-space: pre;
+  color: #555B73;
+  transition: all 0.25s;
+}
+
+.code-line.hl {
+  background: rgba(167,139,250,0.08);
+  border-left-color: #A78BFA;
+  color: #E8ECF4;
+}
+
+/* ── COMPLEXITY BADGES ───────────────────────────────────── */
+.complexity-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+
+.badge-time    { background: rgba(167,139,250,0.1); color: #A78BFA; border-color: rgba(167,139,250,0.25); }
+.badge-space   { background: rgba(62,207,180,0.1);  color: #3ECFB4; border-color: rgba(62,207,180,0.2); }
+.badge-pattern { background: rgba(255,190,89,0.1);  color: #FFBE59; border-color: rgba(255,190,89,0.2); }
+
+/* ── NOTES PANEL ─────────────────────────────────────────── */
+.notes-panel {
+  background: #1A1D27;
+  border: 1px solid #2E3348;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.notes-panel summary {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #555B73;
+  padding: 12px 16px;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+}
+
+.notes-panel summary:hover { color: #8B92A8; }
+
+.notes-body {
+  padding: 0 16px 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 560px) { .notes-body { grid-template-columns: 1fr; } }
+
+.notes-row .notes-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #555B73;
+  margin-bottom: 4px;
+}
+
+.notes-row .notes-value {
+  font-size: 12px;
+  color: #8B92A8;
+  line-height: 1.7;
+}
+
+.notes-row .notes-value strong { color: #E8ECF4; font-weight: 500; }
+
+footer {
+  text-align: center;
+  padding: 2rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #555B73;
+  border-top: 1px solid #2E3348;
+  max-width: 980px;
+  margin: 0 auto;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="back-link" href="/">← dsa-notebook</a>
+  <div class="eyebrow">Interview Prep — Strings / Sliding Window</div>
+  <h1>Minimum <span>Window</span> Substring</h1>
+  <div class="header-meta">
+    <span class="meta-pill pill-diff">Hard</span>
+    <span class="meta-pill pill-pat">Sliding Window</span>
+    <span class="meta-pill pill-num">LeetCode #76</span>
+  </div>
+</header>
+
+<div class="page-wrap">
+
+  <!-- PROBLEM DESCRIPTION -->
+  <div class="problem-desc">
+    <div class="prob-tag">Strings · Sliding Window · LeetCode 76 · Hard</div>
+    <p class="prob-statement">
+      Given two strings <strong>s</strong> and <strong>t</strong>, return the smallest substring of s that
+      contains every character in t (including duplicates). If no such window exists, return <strong>""</strong>.<br>
+      Two pointers <strong>L</strong> and <strong>R</strong> define a sliding window. Expand R to include characters
+      until the window is <strong>valid</strong> (contains all of t), then shrink L to minimize it.
+      A <strong>formed</strong> counter tracks how many unique characters in t are fully satisfied, giving an O(1) validity check.
+    </p>
+    <div class="prob-example">
+      <span class="prob-ex-label">examples</span>
+      s = <span class="ex-hi">"ADOBECODEBANC"</span>, t = <span class="ex-hi">"ABC"</span> → <span class="ex-ans">"BANC"</span><br>
+      s = <span class="ex-hi">"a"</span>, t = <span class="ex-hi">"a"</span> → <span class="ex-ans">"a"</span><br>
+      s = <span class="ex-hi">"a"</span>, t = <span class="ex-hi">"aa"</span> → <span class="ex-ans">""</span> (impossible)
+    </div>
+  </div>
+
+  <!-- VISUALIZATION -->
+  <div class="viz-canvas">
+    <div class="viz-label">s = "ADOBECODEBANC", t = "ABC" — sliding window</div>
+    <div class="string-row" id="string-row"></div>
+    <div class="freq-row" id="freq-row"></div>
+    <div class="info-row">
+      <div class="info-item">
+        <span class="info-label">formed</span>
+        <span class="info-value" id="formed-value" style="color:#8B92A8">0 / 3</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">best</span>
+        <span class="info-value" id="best-value" style="color:#34D399">—</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">length</span>
+        <span class="info-value" id="best-len" style="color:#555B73">—</span>
+      </div>
+    </div>
+    <div class="phase-row">
+      <span class="phase-chip" id="chip-expand">expanding R</span>
+      <span class="phase-chip" id="chip-shrink">shrinking L</span>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="ctrl-row">
+    <button class="ctrl-btn" onclick="step(-1)">&#8592; Prev</button>
+    <button class="ctrl-btn primary" id="play-btn" onclick="togglePlay()">&#9654; Play</button>
+    <button class="ctrl-btn" onclick="step(1)">Next &#8594;</button>
+    <button class="ctrl-btn" onclick="resetViz()">Reset</button>
+    <span class="step-counter" id="step-counter">step 0 / 0</span>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="leg-item"><div class="leg-swatch" style="background:rgba(99,102,241,0.08);border-color:rgba(99,102,241,0.3)"></div>in window</div>
+    <div class="leg-item"><div class="leg-swatch" style="background:rgba(62,207,180,0.16);border-color:#3ECFB4"></div>needed (in t)</div>
+    <div class="leg-item"><div class="leg-swatch" style="background:rgba(167,139,250,0.2);border-color:#A78BFA"></div>R just added</div>
+    <div class="leg-item"><div class="leg-swatch" style="background:rgba(255,107,107,0.14);border-color:#FF6B6B"></div>L removing</div>
+    <div class="leg-item"><div class="leg-swatch" style="background:rgba(52,211,153,0.12);border-color:rgba(52,211,153,0.5)"></div>best window</div>
+  </div>
+
+  <!-- EXPLANATION -->
+  <div class="explain-box" id="explanation">Press <strong>Next step</strong> to begin. Expand R until the window contains all characters of t, then shrink L to minimize.</div>
+
+  <!-- STATE + PSEUDOCODE -->
+  <div class="bottom-panels">
+    <div class="panel-card">
+      <div class="panel-title">State Snapshot</div>
+      <div class="state-grid">
+        <div class="state-item">
+          <div class="state-key">L</div>
+          <div class="state-val" id="s-L" style="color:#FFBE59">—</div>
+        </div>
+        <div class="state-item">
+          <div class="state-key">R</div>
+          <div class="state-val" id="s-R" style="color:#A78BFA">—</div>
+        </div>
+        <div class="state-item">
+          <div class="state-key">formed</div>
+          <div class="state-val" id="s-formed" style="color:#3ECFB4">0 / 3</div>
+        </div>
+        <div class="state-item">
+          <div class="state-key">best</div>
+          <div class="state-val" id="s-best" style="color:#34D399">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <div class="panel-title">Pseudocode</div>
+      <div class="code-block" id="pseudocode"></div>
+    </div>
+  </div>
+
+  <!-- COMPLEXITY -->
+  <div class="complexity-row">
+    <span class="badge badge-time">time: O(|s| + |t|)</span>
+    <span class="badge badge-space">space: O(|&Sigma;|)</span>
+    <span class="badge badge-pattern">pattern: sliding window</span>
+  </div>
+
+  <!-- NOTES -->
+  <details class="notes-panel">
+    <summary>&#9660;&nbsp;&nbsp;Notes &amp; Key Insight</summary>
+    <div class="notes-body">
+      <div class="notes-row">
+        <div class="notes-label">Key Insight</div>
+        <div class="notes-value">The <strong>formed</strong> counter tracks how many unique characters in t meet their required count in the current window. This turns the "is the window valid?" check from O(k) per step into <strong>O(1)</strong> — the difference between an O(n&middot;k) algorithm and a true O(n) one.</div>
+      </div>
+      <div class="notes-row">
+        <div class="notes-label">Why Two Pointers?</div>
+        <div class="notes-value">Once the window is valid, any further expansion of R only makes it larger, never smaller. So we <strong>shrink from L</strong> until it's no longer valid, then resume expanding R. Each pointer only moves right — every character is visited at most twice.</div>
+      </div>
+      <div class="notes-row">
+        <div class="notes-label">Complexity</div>
+        <div class="notes-value"><strong>Time:</strong> O(|s| + |t|) — build the need map in O(|t|), then each character in s is added and removed at most once.<br><strong>Space:</strong> O(|&Sigma;|) — two hash maps bounded by the character set size.</div>
+      </div>
+      <div class="notes-row">
+        <div class="notes-label">Pattern</div>
+        <div class="notes-value"><strong>Sliding Window with frequency maps.</strong> The same expand-then-shrink skeleton applies to Longest Substring Without Repeating Characters (LC #3), Permutation in String (LC #567), and Find All Anagrams (LC #438).</div>
+      </div>
+      <div class="notes-row">
+        <div class="notes-label">Edge Cases</div>
+        <div class="notes-value">
+          &bull; t longer than s &rarr; impossible, return ""<br>
+          &bull; Duplicate characters in t &rarr; need map tracks exact counts, not just presence<br>
+          &bull; t is a single character &rarr; find first occurrence in s
+        </div>
+      </div>
+      <div class="notes-row">
+        <div class="notes-label">Common Mistake</div>
+        <div class="notes-value">Incrementing <strong>formed</strong> every time a needed character is added instead of only when its count <strong>exactly reaches</strong> the required amount. Over-counting makes validity checks incorrect.</div>
+      </div>
+    </div>
+  </details>
+
+</div>
+
+<footer>sliding window visualizer — expand, validate, shrink, repeat</footer>
+
+<script>
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+const S = 'ADOBECODEBANC';
+const T = 'ABC';
+
+const CODE_LINES = [
+  'def minWindow(s, t):',
+  '    need = Counter(t)',
+  '    window, formed = {}, 0',
+  '    required = len(need)',
+  '    L, best = 0, ""',
+  '',
+  '    for R in range(len(s)):',
+  '        window[s[R]] += 1',
+  '        if window[s[R]] == need[s[R]]:',
+  '            formed += 1',
+  '',
+  '        while formed == required:',
+  '            if shorter: best = s[L:R+1]',
+  '            window[s[L]] -= 1',
+  '            if window[s[L]] < need[s[L]]:',
+  '                formed -= 1',
+  '            L += 1',
+  '',
+  '    return best',
+];
+
+function getCodeLine(step) {
+  if (step.phase === 'init') return 1;
+  if (step.phase === 'done') return 18;
+  if (step.phase === 'expand') return step.justFormed ? 9 : 7;
+  if (step.phase === 'shrink') {
+    if (step.isNewBest) return 12;
+    return step.willBreak ? 14 : 13;
+  }
+  return -1;
+}
+
+// ─── STEP GENERATION ─────────────────────────────────────────────────────────
+const STEPS = (function buildSteps(s, t) {
+  const steps = [];
+  const need = {};
+  for (const c of t) need[c] = (need[c] || 0) + 1;
+  const required = Object.keys(need).length;
+
+  let bestStart = -1, bestLen = Infinity;
+  const win = {};
+  let formed = 0;
+  let left = 0;
+
+  function snap(extra) {
+    steps.push({
+      left, right: -1,
+      win: {...win}, formed, required,
+      need: {...need},
+      bestStart, bestLen,
+      phase: 'init', active: -1,
+      justFormed: false, isNewBest: false, willBreak: false,
+      explanation: '',
+      ...extra,
+    });
+  }
+
+  // Init step
+  snap({
+    explanation:
+      `Input: s = "${s}", t = "${t}". We need: ` +
+      Object.entries(need).map(([k,v]) => `<strong>${k}</strong>&times;${v}`).join(', ') +
+      `. Expand R until all characters found, then shrink L to minimize.`,
+  });
+
+  for (let right = 0; right < s.length; right++) {
+    const c = s[right];
+    win[c] = (win[c] || 0) + 1;
+    const jf = (c in need) && win[c] === need[c];
+    if (jf) formed++;
+
+    const isValid = formed === required;
+    let expl;
+    if (c in need) {
+      const sat = win[c] >= need[c];
+      expl = `<strong>R &rarr; ${right}</strong> ('${c}'). Add to window. ` +
+             `${c}: ${win[c]}/${need[c]}` +
+             (jf ? ' &mdash; just satisfied!' : sat ? ' (already satisfied).' : '.') +
+             ` formed: ${formed}/${required}` +
+             (isValid ? ' &mdash; <strong>window valid!</strong>' : '.');
+    } else {
+      expl = `<strong>R &rarr; ${right}</strong> ('${c}'). Add to window. ` +
+             `'${c}' not in t. formed: ${formed}/${required}.`;
+    }
+
+    snap({ right, phase: 'expand', active: right, justFormed: jf, explanation: expl });
+
+    while (formed === required) {
+      const wLen = right - left + 1;
+      const inb = bestLen === Infinity || wLen < bestLen;
+      if (inb) { bestStart = left; bestLen = wLen; }
+
+      const lc = s[left];
+      const wb = (lc in need) && win[lc] === need[lc];
+
+      const windowStr = s.slice(left, right + 1);
+      let se = inb
+        ? `Valid window "<strong>${windowStr}</strong>" (${wLen}) &mdash; <strong>new best!</strong> `
+        : `Valid window "${windowStr}" (${wLen}). `;
+      se += `Shrink: remove '${lc}' at L=${left}. `;
+      if (wb) {
+        se += `${lc}: ${win[lc]}&rarr;${win[lc]-1}/${need[lc]} &mdash; no longer satisfied. ` +
+              `formed: ${formed}&rarr;${formed-1}/${required}, invalid.`;
+      } else if (lc in need) {
+        se += `${lc}: ${win[lc]}&rarr;${win[lc]-1}/${need[lc]}, still satisfied.`;
+      } else {
+        se += `'${lc}' not in t.`;
+      }
+
+      snap({
+        right, phase: 'shrink', active: left,
+        bestStart, bestLen, isNewBest: inb, willBreak: wb,
+        explanation: se,
+      });
+
+      win[lc]--;
+      if (win[lc] === 0) delete win[lc];
+      if (wb) formed--;
+      left++;
+    }
+  }
+
+  // Done
+  snap({
+    right: s.length - 1, phase: 'done',
+    explanation: bestStart >= 0
+      ? `Done! Minimum window substring: "<strong>${s.slice(bestStart, bestStart + bestLen)}</strong>" (length ${bestLen}).`
+      : `No valid window found &mdash; return "".`,
+  });
+
+  return steps;
+})(S, T);
+
+// ─── BUILD DOM ────────────────────────────────────────────────────────────────
+(function buildStringRow() {
+  const row = document.getElementById('string-row');
+  S.split('').forEach((ch, i) => {
+    const col = document.createElement('div');
+    col.className = 'cell-col';
+    col.innerHTML =
+      `<span class="cell-idx">${i}</span>` +
+      `<div class="char-cell cs-default" id="cc-${i}">${ch}</div>` +
+      `<div class="cell-ptr" id="cp-${i}"></div>`;
+    row.appendChild(col);
+  });
+})();
+
+(function buildPseudocode() {
+  document.getElementById('pseudocode').innerHTML = CODE_LINES
+    .map((line, i) =>
+      `<div class="code-line" id="cl-${i}">${
+        (line || ' ').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/ /g,'&nbsp;')
+      }</div>`)
+    .join('');
+})();
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function getCellState(i, st) {
+  const { left, right, phase, active, need } = st;
+
+  if (phase === 'init') return 'default';
+  if (phase === 'done') {
+    return (st.bestStart >= 0 && i >= st.bestStart && i < st.bestStart + st.bestLen) ? 'best' : 'default';
+  }
+
+  if (i === active) return phase === 'shrink' ? 'shrink' : 'active';
+  if (i >= left && i <= right) return (S[i] in need) ? 'needed' : 'window';
+  return 'default';
+}
+
+function getPtrHTML(i, st) {
+  if (st.phase === 'init' || st.phase === 'done') return '';
+  const parts = [];
+  if (i === st.left)  parts.push('<span style="color:#FFBE59">\u25B2\u00A0L</span>');
+  if (i === st.right) parts.push('<span style="color:#A78BFA">\u25B2\u00A0R</span>');
+  return parts.join(' ');
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+let prevHL = -1;
+let cur = 0;
+let playing = null;
+
+function render(idx) {
+  const st = STEPS[idx];
+
+  document.getElementById('explanation').innerHTML = st.explanation;
+  document.getElementById('step-counter').textContent = `step ${idx} / ${STEPS.length - 1}`;
+
+  // Cells & pointers
+  for (let i = 0; i < S.length; i++) {
+    document.getElementById(`cc-${i}`).className = `char-cell cs-${getCellState(i, st)}`;
+    document.getElementById(`cp-${i}`).innerHTML = getPtrHTML(i, st);
+  }
+
+  // Frequency badges
+  document.getElementById('freq-row').innerHTML = Object.entries(st.need).map(([ch, req]) => {
+    const have = st.win[ch] || 0;
+    const sat = have >= req;
+    return `<div class="freq-badge ${sat ? 'freq-sat' : 'freq-unsat'}">` +
+           `<span class="freq-char">${ch}</span>` +
+           `<span class="freq-count">${have} / ${req}</span></div>`;
+  }).join('');
+
+  // Formed
+  const fv = document.getElementById('formed-value');
+  fv.textContent = `${st.formed} / ${st.required}`;
+  fv.style.color = st.formed === st.required ? '#34D399' : '#8B92A8';
+
+  // Best
+  if (st.bestStart >= 0) {
+    document.getElementById('best-value').textContent =
+      `"${S.slice(st.bestStart, st.bestStart + st.bestLen)}"`;
+    document.getElementById('best-len').textContent = st.bestLen;
+  } else {
+    document.getElementById('best-value').textContent = '\u2014';
+    document.getElementById('best-len').textContent = '\u2014';
+  }
+
+  // Phase chips
+  const ce = document.getElementById('chip-expand');
+  const cs = document.getElementById('chip-shrink');
+  ce.className = 'phase-chip' + (st.phase === 'expand' ? ' active-expand' : '');
+  cs.className = 'phase-chip' + (st.phase === 'shrink' ? ' active-shrink' : '');
+
+  // State snapshot
+  document.getElementById('s-L').textContent =
+    st.phase === 'init' ? '\u2014' : `${st.left} ('${S[st.left]}')`;
+  document.getElementById('s-R').textContent =
+    st.right >= 0 ? `${st.right} ('${S[st.right]}')` : '\u2014';
+  document.getElementById('s-formed').textContent = `${st.formed} / ${st.required}`;
+  document.getElementById('s-best').textContent = st.bestStart >= 0
+    ? `"${S.slice(st.bestStart, st.bestStart + st.bestLen)}" (${st.bestLen})`
+    : '\u2014';
+
+  // Pseudocode highlight
+  const cl = getCodeLine(st);
+  if (prevHL >= 0) document.getElementById(`cl-${prevHL}`).classList.remove('hl');
+  if (cl >= 0) document.getElementById(`cl-${cl}`).classList.add('hl');
+  prevHL = cl;
+}
+
+// ─── CONTROLS ────────────────────────────────────────────────────────────────
+function step(dir) {
+  const next = cur + dir;
+  if (next < 0 || next >= STEPS.length) {
+    if (playing) stopPlay();
+    return;
+  }
+  cur = next;
+  render(cur);
+}
+
+function togglePlay() {
+  if (playing) { stopPlay(); return; }
+  const btn = document.getElementById('play-btn');
+  btn.innerHTML = '&#9632; Pause';
+  btn.classList.remove('primary');
+  btn.classList.add('playing');
+  playing = setInterval(() => step(1), 750);
+}
+
+function stopPlay() {
+  clearInterval(playing);
+  playing = null;
+  const btn = document.getElementById('play-btn');
+  btn.innerHTML = '&#9654; Play';
+  btn.classList.remove('playing');
+  btn.classList.add('primary');
+}
+
+function resetViz() {
+  stopPlay();
+  cur = 0;
+  render(0);
+}
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+  if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
+  else if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+  else if (e.key === 'r' || e.key === 'R') { resetViz(); }
+});
+
+render(0);
+</script>
+</body>
+</html>
