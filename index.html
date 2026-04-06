@@ -152,6 +152,14 @@ main {
   border: 1px solid rgba(255,107,107,0.22);
 }
 
+.cat-tag.cat-ds {
+  background: rgba(62,207,180,0.12);
+  color: #3ECFB4;
+  border: 1px solid rgba(62,207,180,0.22);
+}
+
+.card.cat-ds:hover { border-color: #3ECFB4; }
+
 .card h2 {
   font-family: 'JetBrains Mono', monospace;
   font-size: 1.05rem;
@@ -202,6 +210,25 @@ footer {
 </header>
 
 <main>
+
+  <!-- Data Structures -->
+  <section class="category">
+    <div class="cat-header">
+      <span class="cat-tag cat-ds">Data Structures</span>
+      <div class="cat-line"></div>
+    </div>
+    <div class="grid">
+      <a class="card cat-ds" href="/data-structures">
+        <h2>Data Structures Cheat Sheet</h2>
+        <p>All 12 essential structures visualized — create, insert, delete, and traverse each one step by step. Python code snippets for every operation, complexity tables, and interview gotchas.</p>
+        <div class="card-pills">
+          <span class="pill">12 Structures</span>
+          <span class="pill">Python</span>
+          <span class="pill">Interview Prep</span>
+        </div>
+      </a>
+    </div>
+  </section>
 
   <!-- Graph Algorithms -->
   <section class="category">

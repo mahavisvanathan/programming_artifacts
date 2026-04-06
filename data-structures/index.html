@@ -1,0 +1,1918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Structures Cheat Sheet — DSA Notebook</title>
+<meta name="description" content="Interactive data structures reference. Visualize create, insert, delete, and traverse for all 12 essential structures — with Python code snippets for every operation.">
+<meta name="author" content="Mahalakshumi Visvanathan">
+<link rel="canonical" href="https://mahav.io/data-structures">
+<meta property="og:title" content="Data Structures Cheat Sheet — DSA Notebook">
+<meta property="og:description" content="All 12 essential data structures visualized step by step with Python code. Array, HashMap, HashSet, Stack, Queue, Deque, Linked List, Binary Tree, Heap, Graph, Trie, Union-Find.">
+<meta property="og:url" content="https://mahav.io/data-structures">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="dsa-notebook">
+<meta name="twitter:card" content="summary">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="theme-color" content="#0F1117">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500&display=swap');
+
+:root {
+  --bg: #0F1117;
+  --surface: #1A1D27;
+  --surface2: #242838;
+  --border: #2E3348;
+  --text: #E8ECF4;
+  --muted: #8B92A8;
+  --hint: #555B73;
+  --teal: #3ECFB4;
+  --teal-dim: rgba(62,207,180,0.12);
+  --purple: #A78BFA;
+  --purple-dim: rgba(167,139,250,0.12);
+  --coral: #FF6B6B;
+  --coral-dim: rgba(255,107,107,0.12);
+  --amber: #FFBE59;
+  --amber-dim: rgba(255,190,89,0.12);
+  --green: #34D399;
+  --green-dim: rgba(52,211,153,0.12);
+  --blue: #5B9CF6;
+  --blue-dim: rgba(91,156,246,0.12);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+header {
+  padding: 3rem 2rem 2rem;
+  max-width: 980px;
+  margin: 0 auto;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2rem;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--hint);
+  text-decoration: none;
+  padding: 6px 11px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 20px;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.back-link:hover { color: var(--text); border-color: var(--hint); background: var(--surface); }
+
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 12px;
+}
+
+h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(1.6rem, 4vw, 2.9rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 14px;
+}
+h1 span { color: var(--teal); }
+
+.header-meta { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.meta-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+.pill-ref  { background: var(--teal-dim);   color: var(--teal);   border-color: rgba(62,207,180,0.3); }
+.pill-num  { background: transparent;        color: var(--hint);   border-color: var(--border); }
+
+/* ── PAGE WRAP ── */
+.page-wrap { max-width: 980px; margin: 0 auto; padding: 0 2rem 4rem; }
+
+/* ── DS NAV ── */
+.ds-nav {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 2rem;
+  scrollbar-width: none;
+  flex-wrap: wrap;
+}
+.ds-nav::-webkit-scrollbar { display: none; }
+
+.dstab {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  padding: 7px 16px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+.dstab:hover { color: var(--text); border-color: var(--teal); }
+.dstab.active { background: var(--teal-dim); color: var(--teal); border-color: var(--teal); }
+
+/* ── DS PANEL ── */
+.ds-panel { display: none; }
+.ds-panel.active { display: block; }
+
+/* ── DS DESCRIPTION ── */
+.ds-desc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.ds-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 8px;
+}
+.ds-desc h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.ds-desc h2 span { color: var(--teal); }
+.ds-desc p { font-size: 13.5px; color: var(--muted); line-height: 1.7; }
+
+/* ── VIZ CANVAS ── */
+.viz-canvas {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  min-height: 200px;
+}
+.op-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid;
+  display: inline-block;
+  margin-bottom: 1.25rem;
+}
+.ot-create   { color:var(--teal);   border-color:rgba(62,207,180,0.35); background:rgba(62,207,180,0.08); }
+.ot-insert   { color:var(--purple); border-color:rgba(167,139,250,0.35); background:rgba(167,139,250,0.08); }
+.ot-delete   { color:var(--coral);  border-color:rgba(255,107,107,0.35); background:rgba(255,107,107,0.08); }
+.ot-traverse { color:var(--green);  border-color:rgba(52,211,153,0.35); background:rgba(52,211,153,0.08); }
+.ot-search   { color:var(--amber);  border-color:rgba(255,190,89,0.35); background:rgba(255,190,89,0.08); }
+.ot-other    { color:var(--blue);   border-color:rgba(91,156,246,0.35); background:rgba(91,156,246,0.08); }
+
+.viz-inner { width: 100%; }
+
+@keyframes stepFade {
+  from { opacity: 0.5; transform: translateY(6px); }
+  to   { opacity: 1;   transform: translateY(0); }
+}
+.viz-inner.anim { animation: stepFade 0.25s ease; }
+
+/* ── DS CELLS ── */
+.ds-empty {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  color: var(--hint);
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.ds-arr-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 0.5rem 0;
+}
+
+.ds-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.ds-idx {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--hint);
+}
+
+.ds-cell {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  cursor: default;
+  user-select: none;
+}
+
+.ds-d  { background: var(--surface);  border-color: var(--border);       color: var(--muted); }
+.ds-n  { background: rgba(62,207,180,0.15); border-color: var(--teal);   color: var(--teal); }
+.ds-a  { background: rgba(167,139,250,0.18); border-color: var(--purple); color: #C4B5FD; box-shadow: 0 0 12px rgba(167,139,250,0.3); }
+.ds-rm { background: rgba(255,107,107,0.14); border-color: var(--coral);  color: var(--coral); box-shadow: 0 0 12px rgba(255,107,107,0.3); }
+.ds-v  { background: rgba(52,211,153,0.12); border-color: var(--green);   color: var(--green); }
+.ds-f  { background: rgba(255,190,89,0.12); border-color: var(--amber);   color: var(--amber); }
+
+/* ── HASH MAP ── */
+.ds-kv-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 0.5rem 0;
+}
+.ds-kv {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  transition: all 0.3s;
+}
+.ds-kv-d  { border-color: var(--border); }
+.ds-kv-n  { background: rgba(62,207,180,0.1); border-color: var(--teal); }
+.ds-kv-a  { background: rgba(167,139,250,0.12); border-color: var(--purple); }
+.ds-kv-rm { background: rgba(255,107,107,0.1); border-color: var(--coral); text-decoration: line-through; opacity: 0.6; }
+.ds-kv-v  { background: rgba(52,211,153,0.1); border-color: var(--green); }
+.kv-k  { color: var(--amber); flex: 1; }
+.kv-sep { color: var(--hint); }
+.kv-v  { color: var(--teal); }
+
+/* ── HASH SET ── */
+.ds-badge-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 1rem 0;
+}
+.ds-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 17px;
+  font-weight: 700;
+  transition: all 0.3s;
+}
+.ds-badge.ds-d  { background: var(--surface2); border-color: var(--border); color: var(--muted); }
+.ds-badge.ds-n  { background: rgba(62,207,180,0.15); border-color: var(--teal); color: var(--teal); }
+.ds-badge.ds-a  { background: rgba(167,139,250,0.18); border-color: var(--purple); color: #C4B5FD; box-shadow: 0 0 12px rgba(167,139,250,0.3); }
+.ds-badge.ds-rm { background: rgba(255,107,107,0.12); border-color: var(--coral); color: var(--coral); }
+.ds-badge.ds-v  { background: rgba(52,211,153,0.12); border-color: var(--green); color: var(--green); }
+.ds-badge.ds-f  { background: rgba(255,190,89,0.12); border-color: var(--amber); color: var(--amber); }
+
+/* ── STACK ── */
+.ds-stk-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  max-width: 140px;
+  margin: 0 auto;
+}
+.stk-top-lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--hint);
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+.stk-item { width: 80px !important; }
+
+/* ── QUEUE / DEQUE ── */
+.ds-q-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 1rem 0;
+}
+.q-lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--hint);
+  white-space: nowrap;
+}
+
+/* ── LINKED LIST ── */
+.ll-head-lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--hint);
+  text-align: center;
+  margin-bottom: 4px;
+}
+.ds-ll-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.ll-node {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  transition: all 0.3s;
+}
+.ll-node.ds-d  { background: var(--surface);  border-color: var(--border);  color: var(--muted); }
+.ll-node.ds-n  { background: rgba(62,207,180,0.15); border-color: var(--teal); color: var(--teal); }
+.ll-node.ds-rm { background: rgba(255,107,107,0.14); border-color: var(--coral); color: var(--coral); }
+.ll-node.ds-v  { background: rgba(52,211,153,0.12); border-color: var(--green); color: var(--green); }
+.ll-node.ds-a  { background: rgba(167,139,250,0.18); border-color: var(--purple); color: #C4B5FD; }
+.ll-arr  { font-family: 'JetBrains Mono', monospace; font-size: 18px; color: var(--hint); flex-shrink: 0; }
+.ll-null {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--hint);
+  padding: 4px 8px;
+  border: 1px dashed var(--border);
+  border-radius: 4px;
+}
+
+/* ── UNION-FIND ── */
+.uf-groups-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+.uf-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1.5px solid;
+}
+.uf-node {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 700;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  transition: all 0.3s;
+}
+.uf-parent-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.uf-parent-lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--hint);
+  white-space: nowrap;
+}
+
+/* ── HELPER TEXT ── */
+.ds-op-msg {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--amber);
+  text-align: center;
+  margin-top: 0.75rem;
+  padding: 4px 12px;
+  background: rgba(255,190,89,0.08);
+  border-radius: 4px;
+  border: 1px solid rgba(255,190,89,0.2);
+  display: inline-block;
+}
+.ds-hint {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--hint);
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+/* ── CONTROLS ── */
+.ctrl-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+.ctrl-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ctrl-btn:hover { background: var(--surface2); }
+.ctrl-btn.primary { border-color: var(--teal); color: var(--teal); background: var(--teal-dim); }
+.ctrl-btn.playing { border-color: var(--coral); color: var(--coral); background: var(--coral-dim); }
+.step-counter {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--hint);
+  margin-left: auto;
+}
+
+/* ── EXPLAIN BOX ── */
+.explain-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--teal);
+  border-radius: 0 8px 8px 0;
+  padding: 12px 16px;
+  margin-bottom: 1.25rem;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.7;
+  min-height: 52px;
+}
+.explain-box strong { color: var(--teal); font-weight: 500; }
+.explain-box .hi { color: var(--amber); }
+
+/* ── BOTTOM PANELS ── */
+.bottom-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 1.5rem;
+}
+@media (max-width: 680px) { .bottom-panels { grid-template-columns: 1fr; } }
+
+.panel-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.panel-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--hint);
+  margin-bottom: 12px;
+}
+
+/* ── CODE REF ── */
+.code-ref {
+  background: var(--surface2);
+  border-radius: 6px;
+  padding: 10px 14px;
+  overflow-x: auto;
+  max-height: 380px;
+  overflow-y: auto;
+}
+.code-ref pre {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  line-height: 1.85;
+  color: var(--muted);
+  white-space: pre;
+}
+.code-ref pre .cm { color: var(--hint); }
+
+/* ── COMPLEXITY TABLE ── */
+.cplx-table { margin-bottom: 12px; }
+.cr { display: flex; gap: 8px; padding: 4px 0; border-bottom: 1px solid rgba(46,51,72,0.5); }
+.cr:last-child { border-bottom: none; }
+.co { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--muted); flex: 1; }
+.ct { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--teal); min-width: 100px; text-align: right; }
+
+.use-section { margin-top: 12px; }
+.use-lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hint);
+  margin-bottom: 6px;
+}
+.use-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.use-list li {
+  font-size: 12px;
+  color: var(--muted);
+  padding-left: 14px;
+  position: relative;
+}
+.use-list li::before { content: '·'; position: absolute; left: 4px; color: var(--hint); }
+
+.complexity-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+.badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+.badge-time  { background: var(--purple-dim); color: #C4B5FD; border-color: rgba(167,139,250,0.3); }
+.badge-space { background: var(--teal-dim);   color: var(--teal); border-color: rgba(62,207,180,0.3); }
+.badge-pat   { background: var(--amber-dim);  color: var(--amber); border-color: rgba(255,190,89,0.3); }
+
+footer {
+  text-align: center;
+  padding: 3rem 2rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--hint);
+  letter-spacing: 0.06em;
+}
+
+@media (max-width: 600px) {
+  .ds-cell { width: 40px; height: 40px; font-size: 14px; }
+  .ll-node { width: 40px; height: 40px; font-size: 14px; }
+  .ds-badge { width: 44px; height: 44px; font-size: 15px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="back-link" href="/">← dsa-notebook</a>
+  <div class="eyebrow">Interview Prep — Cheat Sheet</div>
+  <h1>Data <span>Structures</span></h1>
+  <div class="header-meta">
+    <span class="meta-pill pill-ref">12 structures</span>
+    <span class="meta-pill pill-num">create · insert · delete · traverse</span>
+  </div>
+</header>
+
+<div class="page-wrap">
+
+  <div class="ds-nav">
+    <button class="dstab active" id="tab-array"      onclick="switchDS('array')">Array</button>
+    <button class="dstab"        id="tab-hashmap"    onclick="switchDS('hashmap')">Hash Map</button>
+    <button class="dstab"        id="tab-hashset"    onclick="switchDS('hashset')">Hash Set</button>
+    <button class="dstab"        id="tab-stack"      onclick="switchDS('stack')">Stack</button>
+    <button class="dstab"        id="tab-queue"      onclick="switchDS('queue')">Queue</button>
+    <button class="dstab"        id="tab-deque"      onclick="switchDS('deque')">Deque</button>
+    <button class="dstab"        id="tab-linkedlist" onclick="switchDS('linkedlist')">Linked List</button>
+    <button class="dstab"        id="tab-binarytree" onclick="switchDS('binarytree')">Binary Tree</button>
+    <button class="dstab"        id="tab-heap"       onclick="switchDS('heap')">Heap</button>
+    <button class="dstab"        id="tab-graph"      onclick="switchDS('graph')">Graph</button>
+    <button class="dstab"        id="tab-trie"       onclick="switchDS('trie')">Trie</button>
+    <button class="dstab"        id="tab-unionfind"  onclick="switchDS('unionfind')">Union-Find</button>
+  </div>
+
+  <!-- ARRAY -->
+  <div class="ds-panel active" id="panel-array">
+    <div class="ds-desc">
+      <div class="ds-tag">Linear · Indexed · Python built-in</div>
+      <h2>Array <span>/ List</span></h2>
+      <p>Dynamic array backed by contiguous memory. O(1) random access and amortized O(1) append. The default Python container — use it as a list, stack, or combine with slicing for prefix sums.</p>
+    </div>
+    <div class="viz-canvas">
+      <span class="op-tag ot-create" id="op-array">create</span>
+      <div class="viz-inner" id="viz-array"></div>
+    </div>
+    <div class="ctrl-row">
+      <button class="ctrl-btn" onclick="go('array',-1)">← Prev</button>
+      <button class="ctrl-btn primary" id="play-array" onclick="playToggle('array')">▶ Play</button>
+      <button class="ctrl-btn" onclick="go('array',1)">Next →</button>
+      <button class="ctrl-btn" onclick="rst('array')">Reset</button>
+      <span class="step-counter" id="ctr-array">step 0 / 7</span>
+    </div>
+    <div class="explain-box" id="exp-array"></div>
+    <div class="bottom-panels">
+      <div class="panel-card"><div class="panel-title">Python Reference</div><div class="code-ref"><pre id="code-array"></pre></div></div>
+      <div class="panel-card" id="info-array"><div class="panel-title">Complexity</div></div>
+    </div>
+  </div>
+
+  <!-- HASH MAP -->
+  <div class="ds-panel" id="panel-hashmap">
+    <div class="ds-desc">
+      <div class="ds-tag">Key-Value · Hash Table · dict</div>
+      <h2>Hash <span>Map</span></h2>
+      <p>Unordered key→value store backed by a hash table. O(1) average get/set/delete and membership check. Python's <code>dict</code> preserves insertion order since 3.7. Use <code>defaultdict</code> and <code>Counter</code> for frequency counting.</p>
+    </div>
+    <div class="viz-canvas">
+      <span class="op-tag ot-create" id="op-hashmap">create</span>
+      <div class="viz-inner" id="viz-hashmap"></div>
+    </div>
+    <div class="ctrl-row">
+      <button class="ctrl-btn" onclick="go('hashmap',-1)">← Prev</button>
+      <button class="ctrl-btn primary" id="play-hashmap" onclick="playToggle('hashmap')">▶ Play</button>
+      <button class="ctrl-btn" onclick="go('hashmap',1)">Next →</button>
+      <button class="ctrl-btn" onclick="rst('hashmap')">Reset</button>
+      <span class="step-counter" id="ctr-hashmap">step 0 / 6</span>
+    </div>
+    <div class="explain-box" id="exp-hashmap"></div>
+    <div class="bottom-panels">
+      <div class="panel-card"><div class="panel-title">Python Reference</div><div class="code-ref"><pre id="code-hashmap"></pre></div></div>
+      <div class="panel-card" id="info-hashmap"><div class="panel-title">Complexity</div></div>
+    </div>
+  </div>
+
+  <!-- HASH SET -->
+  <div class="ds-panel" id="panel-hashset">
+    <div class="ds-desc">
+      <div class="ds-tag">Unique Elements · Hash Table · set</div>
+      <h2>Hash <span>Set</span></h2>
+      <p>Unordered collection of unique elements. O(1) average add/remove/membership. Use when you need fast deduplication or O(1) "have I seen this?" checks — the set's superpower over lists.</p>
+    </div>
+    <div class="viz-canvas">
+      <span class="op-tag ot-create" id="op-hashset">create</span>
+      <div class="viz-inner" id="viz-hashset"></div>
+    </div>
+    <div class="ctrl-row">
+      <button class="ctrl-btn" onclick="go('hashset',-1)">← Prev</button>
+      <button class="ctrl-btn primary" id="play-hashset" onclick="playToggle('hashset')">▶ Play</button>
+      <button class="ctrl-btn" onclick="go('hashset',1)">Next →</button>
+      <button class="ctrl-btn" onclick="rst('hashset')">Reset</button>
+      <span class="step-counter" id="ctr-hashset">step 0 / 5</span>
+    </div>
+    <div class="explain-box" id="exp-hashset"></div>
+    <div class="bottom-panels">
+      <div class="panel-card"><div class="panel-title">Python Reference</div><div class="code-ref"><pre id="code-hashset"></pre></div></div>
+      <div class="panel-card" id="info-hashset"><div class="panel-title">Complexity</div></div>
+    </div>
+  </div>
+
+  <!-- STACK -->
+  <div class="ds-panel" id="panel-stack">
+    <div class="ds-desc">
+      <div class="ds-tag">LIFO · Linear · list</div>
+      <h2><span>Stack</span></h2>
+      <p>Last-In-First-Out. Push and pop from the same end (the top). Python's <code>list</code> works perfectly — <code>append()</code> to push, <code>pop()</code> to pop. Monotonic stacks are the key interview pattern.</p>
+    </div>
+    <div class="viz-canvas">
+      <span class="op-tag ot-create" id="op-stack">create</span>
+      <div class="viz-inner" id="viz-stack"></div>
+    </div>
+    <div class="ctrl-row">
+      <button class="ctrl-btn" onclick="go('stack',-1)">← Prev</button>
+      <button class="ctrl-btn primary" id="play-stack" onclick="playToggle('stack')">▶ Play</button>
+      <button class="ctrl-btn" onclick="go('stack',1)">Next →</button>
+      <button class="ctrl-btn" onclick="rst('stack')">Reset</button>
+      <span class="step-counter" id="ctr-stack">step 0 / 6</span>
+    </div>
+    <div class="explain-box" id="exp-stack"></div>
+    <div class="bottom-panels">
+      <div class="panel-card"><div class="panel-title">Python Reference</div><div class="code-ref"><pre id="code-stack"></pre></div></div>
+      <div class="panel-card" id="info-stack"><div class="panel-title">Complexity</div></div>
+    </div>
+  </div>
+
+  <!-- QUEUE -->
+  <div class="ds-panel" id="panel-queue">
+    <div class="ds-desc">
+      <div class="ds-tag">FIFO · Linear · deque</div>
+      <h2><span>Queue</span></h2>
+      <p>First-In-First-Out. Enqueue at the back, dequeue from the front. Always use <code>collections.deque</code> — <code>list.pop(0)</code> is O(n). The BFS traversal pattern lives here.</p>
+    </div>
+    <div class="viz-canvas">
+      <span class="op-tag ot-create" id="op-queue">create</span>
+      <div class="viz-inner" id="viz-queue"></div>
+    </div>
+    <div class="ctrl-row">
+      <button class="ctrl-btn" onclick="go('queue',-1)">← Prev</button>
+      <button class="ctrl-btn primary" id="play-queue" onclick="playToggle('queue')">▶ Play</button>
+      <button class="ctrl-btn" onclick="go('queue',1)">Next →</button>
+      <button class="ctrl-btn" onclick="rst('queue')">Reset</button>
+      <span class="step-counter" id="ctr-queue">step 0 / 5</span>
+    </div>
+    <div class="explain-box" id="exp-queue"></div>
+    <div class="bottom-panels">
+      <div class="panel-card"><div class="panel-title">Python Reference</div><div class="code-ref"><pre id="code-queue"></pre></div></div>
+      <div class="panel-card" id="info-queue"><div class="panel-title">Complexity</div></div>
+    </div>
+  </div>
+
+  <!-- DEQUE -->
+  <div class="ds-panel" id="panel-deque">
+    <div class="ds-desc">
+      <div class="ds-tag">Double-Ended · Linear · deque</div>
+      <h2><span>Deque</span></h2>
+      <p>O(1) append and pop at both ends. Generalizes stack and queue. Key pattern: monotonic deque for sliding window maximum. Also use <code>maxlen</code> for a bounded window that auto-evicts old elements.</p>
+    </div>
+    <div class="viz-canvas">
+      <span class="op-tag ot-create" id="op-deque">create</span>
+      <div class="viz-inner" id="viz-deque"></div>
+    </div>
+    <div class="ctrl-row">
+      <button class="ctrl-btn" onclick="go('deque',-1)">← Prev</button>
+      <button class="ctrl-btn primary" id="play-deque" onclick="playToggle('deque')">▶ Play</button>
+      <button class="ctrl-btn" onclick="go('deque',1)">Next →</button>
+      <button class="ctrl-btn" onclick="rst('deque')">Reset</button>
+      <span class="step-counter" id="ctr-deque">step 0 / 6</span>
+    </div>
+    <div class="explain-box" id="exp-deque"></div>
+    <div class="bottom-panels">
+      <div class="panel-card"><div class="panel-title">Python Reference</div><div class="code-ref"><pre id="code-deque"></pre></div></div>
+      <div class="panel-card" id="info-deque"><div class="panel-title">Complexity</div></div>
+    </div>
+  </div>
+
+  <!-- LINKED LIST -->
+  <div class="ds-panel" id="panel-linkedlist">
+    <div class="ds-desc">
+      <div class="ds-tag">Pointer · Linear · ListNode</div>
+      <h2>Linked <span>List</span></h2>
+      <p>Nodes linked by <code>next</code> pointers. O(1) head insert/delete, O(n) search. The <strong>dummy head</strong> pattern eliminates edge cases. Two-pointer tricks (fast/slow) detect cycles and find midpoints.</p>
+    </div>
+    <div class="viz-canvas">
+      <span class="op-tag ot-other" id="op-linkedlist">define</span>
+      <div class="viz-inner" id="viz-linkedlist"></div>
+    </div>
+    <div class="ctrl-row">
+      <button class="ctrl-btn" onclick="go('linkedlist',-1)">← Prev</button>
+      <button class="ctrl-btn primary" id="play-linkedlist" onclick="playToggle('linkedlist')">▶ Play</button>
+      <button class="ctrl-btn" onclick="go('linkedlist',1)">Next →</button>
+      <button class="ctrl-btn" onclick="rst('linkedlist')">Reset</button>
+      <span class="step-counter" id="ctr-linkedlist">step 0 / 6</span>
+    </div>
+    <div class="explain-box" id="exp-linkedlist"></div>
+    <div class="bottom-panels">
+      <div class="panel-card"><div class="panel-title">Python Reference</div><div class="code-ref"><pre id="code-linkedlist"></pre></div></div>
+      <div class="panel-card" id="info-linkedlist"><div class="panel-title">Complexity</div></div>
+    </div>
+  </div>
+
+  <!-- BINARY TREE -->
+  <div class="ds-panel" id="panel-binarytree">
+    <div class="ds-desc">
+      <div class="ds-tag">Tree · Recursive · TreeNode</div>
+      <h2>Binary <span>Tree / BST</span></h2>
+      <p>Each node has at most two children. BST property: left subtree &lt; node &lt; right subtree. In-order traversal yields a sorted sequence. O(log n) operations on a balanced tree, O(n) worst case (degenerate).</p>
+    </div>
+    <div class="viz-canvas">
+      <span class="op-tag ot-create" id="op-binarytree">create</span>
+      <div class="viz-inner" id="viz-binarytree"></div>
+    </div>
+    <div class="ctrl-row">
+      <button class="ctrl-btn" onclick="go('binarytree',-1)">← Prev</button>
+      <button class="ctrl-btn primary" id="play-binarytree" onclick="playToggle('binarytree')">▶ Play</button>
+      <button class="ctrl-btn" onclick="go('binarytree',1)">Next →</button>
+      <button class="ctrl-btn" onclick="rst('binarytree')">Reset</button>
+      <span class="step-counter" id="ctr-binarytree">step 0 / 7</span>
+    </div>
+    <div class="explain-box" id="exp-binarytree"></div>
+    <div class="bottom-panels">
+      <div class="panel-card"><div class="panel-title">Python Reference</div><div class="code-ref"><pre id="code-binarytree"></pre></div></div>
+      <div class="panel-card" id="info-binarytree"><div class="panel-title">Complexity</div></div>
+    </div>
+  </div>
+
+  <!-- HEAP -->
+  <div class="ds-panel" id="panel-heap">
+    <div class="ds-desc">
+      <div class="ds-tag">Priority Queue · Tree · heapq</div>
+      <h2><span>Heap</span> (min-heap)</h2>
+      <p>Complete binary tree where every parent ≤ its children. <code>heap[0]</code> is always the minimum. Python's <code>heapq</code> is a min-heap. For max-heap: negate values. O(log n) push/pop, O(1) peek, O(n) heapify.</p>
+    </div>
+    <div class="viz-canvas">
+      <span class="op-tag ot-create" id="op-heap">create</span>
+      <div class="viz-inner" id="viz-heap"></div>
+    </div>
+    <div class="ctrl-row">
+      <button class="ctrl-btn" onclick="go('heap',-1)">← Prev</button>
+      <button class="ctrl-btn primary" id="play-heap" onclick="playToggle('heap')">▶ Play</button>
+      <button class="ctrl-btn" onclick="go('heap',1)">Next →</button>
+      <button class="ctrl-btn" onclick="rst('heap')">Reset</button>
+      <span class="step-counter" id="ctr-heap">step 0 / 6</span>
+    </div>
+    <div class="explain-box" id="exp-heap"></div>
+    <div class="bottom-panels">
+      <div class="panel-card"><div class="panel-title">Python Reference</div><div class="code-ref"><pre id="code-heap"></pre></div></div>
+      <div class="panel-card" id="info-heap"><div class="panel-title">Complexity</div></div>
+    </div>
+  </div>
+
+  <!-- GRAPH -->
+  <div class="ds-panel" id="panel-graph">
+    <div class="ds-desc">
+      <div class="ds-tag">Adjacency List · BFS / DFS · defaultdict</div>
+      <h2><span>Graph</span></h2>
+      <p>Nodes (vertices) connected by edges. Represent as an adjacency list with <code>defaultdict(list)</code>. BFS finds shortest paths (unweighted). DFS explores depth-first and powers cycle detection, topological sort, and connected components.</p>
+    </div>
+    <div class="viz-canvas">
+      <span class="op-tag ot-create" id="op-graph">create</span>
+      <div class="viz-inner" id="viz-graph"></div>
+    </div>
+    <div class="ctrl-row">
+      <button class="ctrl-btn" onclick="go('graph',-1)">← Prev</button>
+      <button class="ctrl-btn primary" id="play-graph" onclick="playToggle('graph')">▶ Play</button>
+      <button class="ctrl-btn" onclick="go('graph',1)">Next →</button>
+      <button class="ctrl-btn" onclick="rst('graph')">Reset</button>
+      <span class="step-counter" id="ctr-graph">step 0 / 6</span>
+    </div>
+    <div class="explain-box" id="exp-graph"></div>
+    <div class="bottom-panels">
+      <div class="panel-card"><div class="panel-title">Python Reference</div><div class="code-ref"><pre id="code-graph"></pre></div></div>
+      <div class="panel-card" id="info-graph"><div class="panel-title">Complexity</div></div>
+    </div>
+  </div>
+
+  <!-- TRIE -->
+  <div class="ds-panel" id="panel-trie">
+    <div class="ds-desc">
+      <div class="ds-tag">Prefix Tree · String · TrieNode</div>
+      <h2><span>Trie</span></h2>
+      <p>Tree for storing strings character by character. Common prefixes share nodes. O(m) insert/search/startsWith where m = word length. Best structure for prefix matching, autocomplete, and word existence checks.</p>
+    </div>
+    <div class="viz-canvas">
+      <span class="op-tag ot-create" id="op-trie">create</span>
+      <div class="viz-inner" id="viz-trie"></div>
+    </div>
+    <div class="ctrl-row">
+      <button class="ctrl-btn" onclick="go('trie',-1)">← Prev</button>
+      <button class="ctrl-btn primary" id="play-trie" onclick="playToggle('trie')">▶ Play</button>
+      <button class="ctrl-btn" onclick="go('trie',1)">Next →</button>
+      <button class="ctrl-btn" onclick="rst('trie')">Reset</button>
+      <span class="step-counter" id="ctr-trie">step 0 / 6</span>
+    </div>
+    <div class="explain-box" id="exp-trie"></div>
+    <div class="bottom-panels">
+      <div class="panel-card"><div class="panel-title">Python Reference</div><div class="code-ref"><pre id="code-trie"></pre></div></div>
+      <div class="panel-card" id="info-trie"><div class="panel-title">Complexity</div></div>
+    </div>
+  </div>
+
+  <!-- UNION-FIND -->
+  <div class="ds-panel" id="panel-unionfind">
+    <div class="ds-desc">
+      <div class="ds-tag">Disjoint Sets · Path Compression · Rank</div>
+      <h2>Union <span>-Find</span></h2>
+      <p>Tracks which elements belong to the same connected component. Near-O(1) per operation with path compression and union by rank. Essential for Kruskal's MST, cycle detection in undirected graphs, and grid connectivity problems.</p>
+    </div>
+    <div class="viz-canvas">
+      <span class="op-tag ot-other" id="op-unionfind">make_set</span>
+      <div class="viz-inner" id="viz-unionfind"></div>
+    </div>
+    <div class="ctrl-row">
+      <button class="ctrl-btn" onclick="go('unionfind',-1)">← Prev</button>
+      <button class="ctrl-btn primary" id="play-unionfind" onclick="playToggle('unionfind')">▶ Play</button>
+      <button class="ctrl-btn" onclick="go('unionfind',1)">Next →</button>
+      <button class="ctrl-btn" onclick="rst('unionfind')">Reset</button>
+      <span class="step-counter" id="ctr-unionfind">step 0 / 6</span>
+    </div>
+    <div class="explain-box" id="exp-unionfind"></div>
+    <div class="bottom-panels">
+      <div class="panel-card"><div class="panel-title">Python Reference</div><div class="code-ref"><pre id="code-unionfind"></pre></div></div>
+      <div class="panel-card" id="info-unionfind"><div class="panel-title">Complexity</div></div>
+    </div>
+  </div>
+
+</div>
+
+<footer>create · insert · delete · traverse · repeat</footer>
+
+<script>
+// ─── SVG / VIZ HELPERS ────────────────────────────────────────────────────────
+const NC = s => ({
+  d:  {fill:'#1a1d27',    s:'#2E3348',                    t:'#555B73'},
+  n:  {fill:'rgba(62,207,180,0.15)',  s:'#3ECFB4',        t:'#3ECFB4'},
+  a:  {fill:'rgba(167,139,250,0.18)', s:'#A78BFA',        t:'#C4B5FD'},
+  v:  {fill:'rgba(52,211,153,0.14)',  s:'#34D399',        t:'#34D399'},
+  f:  {fill:'rgba(255,190,89,0.14)',  s:'#FFBE59',        t:'#FFBE59'},
+  rm: {fill:'rgba(255,107,107,0.14)', s:'#FF6B6B',        t:'#FF6B6B'},
+  e:  {fill:'rgba(255,107,107,0.14)', s:'#FF6B6B',        t:'#FF6B6B'},
+  q:  {fill:'rgba(255,190,89,0.14)',  s:'#FFBE59',        t:'#FFBE59'},
+}[s] || {fill:'#1a1d27', s:'#2E3348', t:'#555B73'});
+
+function sn(x, y, val, s, r=26) {
+  const c = NC(s);
+  return `<circle cx="${x}" cy="${y}" r="${r}" fill="${c.fill}" stroke="${c.s}" stroke-width="1.5"/>
+<text x="${x}" y="${y+5}" text-anchor="middle" fill="${c.t}" font-family="JetBrains Mono,monospace" font-size="15" font-weight="700">${val}</text>`;
+}
+
+function se(x1, y1, x2, y2, s='d') {
+  const col = s==='a'?'#A78BFA':s==='v'?'#34D399':s==='e'?'#FF6B6B':'#2E3348';
+  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="1.5"/>`;
+}
+
+// ─── DOM HELPERS ──────────────────────────────────────────────────────────────
+function arrV(cells) {
+  if (!cells.length) return `<div class="ds-empty">arr = [ ]&ensp;·&ensp;empty</div>`;
+  return `<div class="ds-arr-row">${cells.map((c,i)=>`<div class="ds-col"><div class="ds-idx">${i}</div><div class="ds-cell ds-${c.s}">${c.v}</div></div>`).join('')}</div>`;
+}
+
+function hmV(entries) {
+  if (!entries.length) return `<div class="ds-empty">d = { }&ensp;·&ensp;empty</div>`;
+  return `<div class="ds-kv-grid">${entries.map(e=>`<div class="ds-kv ds-kv-${e.s}"><span class="kv-k">"${e.k}"</span><span class="kv-sep">→</span><span class="kv-v">${typeof e.v==='string'?`"${e.v}"`:e.v}</span></div>`).join('')}</div>`;
+}
+
+function hsV(els) {
+  if (!els.length) return `<div class="ds-empty">s = { }&ensp;·&ensp;empty set</div>`;
+  return `<div class="ds-badge-row">${els.map(e=>`<div class="ds-badge ds-${e.s}">${e.v}</div>`).join('')}</div>`;
+}
+
+function stkV(items) {
+  if (!items.length) return `<div class="ds-empty">stack = [ ]&ensp;·&ensp;empty</div>`;
+  const reversed = [...items].reverse();
+  return `<div class="ds-stk-col"><div class="stk-top-lbl">top ▼</div>${reversed.map(c=>`<div class="ds-cell stk-item ds-${c.s}">${c.v}</div>`).join('')}</div>`;
+}
+
+function qV(items, fl='front ▶', bl='◀ back') {
+  if (!items.length) return `<div class="ds-empty">deque( )&ensp;·&ensp;empty</div>`;
+  return `<div class="ds-q-row"><div class="q-lbl">${fl}</div>${items.map(c=>`<div class="ds-cell ds-${c.s}">${c.v}</div>`).join('')}<div class="q-lbl">${bl}</div></div>`;
+}
+
+function llV(nodes) {
+  if (!nodes.length) return `<div class="ds-empty">head = None</div>`;
+  let p = '';
+  nodes.forEach((n,i) => {
+    p += `<div class="ll-node ds-${n.s}">${n.v}</div><div class="ll-arr">→</div>`;
+  });
+  p += `<div class="ll-null">None</div>`;
+  return `<div class="ll-head-lbl">head ↓</div><div class="ds-ll-row">${p}</div>`;
+}
+
+// ─── SVG: BINARY TREE ─────────────────────────────────────────────────────────
+const BTP = {5:[250,55],3:[130,145],7:[370,145],1:[70,235],4:[190,235]};
+const BTE = [[5,3],[5,7],[3,1],[3,4]];
+
+function btV(vis, st) {
+  const visSet = new Set(vis);
+  let svg = `<svg viewBox="0 0 500 285" width="100%" style="max-height:270px;display:block;margin:0 auto">`;
+  BTE.forEach(([p,c]) => {
+    if (!visSet.has(p)||!visSet.has(c)) return;
+    const [px,py]=BTP[p],[cx,cy]=BTP[c];
+    const ps=st[p]||'d', cs=st[c]||'d';
+    const es = (ps==='a'||cs==='a')?'a':(cs==='v')?'v':'d';
+    svg += se(px,py,cx,cy,es);
+  });
+  vis.forEach(v => {
+    const [x,y]=BTP[v]; const c=NC(st[v]||'d');
+    svg += `<circle cx="${x}" cy="${y}" r="26" fill="${c.fill}" stroke="${c.s}" stroke-width="1.5"/>`;
+    svg += `<text x="${x}" y="${y+5}" text-anchor="middle" fill="${c.t}" font-family="JetBrains Mono,monospace" font-size="15" font-weight="700">${v}</text>`;
+  });
+  return svg + '</svg>';
+}
+
+// ─── SVG: HEAP ────────────────────────────────────────────────────────────────
+const HPP = [[200,42],[110,122],[290,122],[60,202],[160,202]];
+const HPE = [[0,1],[0,2],[1,3],[1,4]];
+
+function heapV(arr, ai=-1) {
+  const arrHtml = arr.map((v,i) => {
+    const s = i===ai?'a':(i===0?'n':'d');
+    return `<div class="ds-col"><div class="ds-idx">i=${i}</div><div class="ds-cell ds-${s}">${v}</div></div>`;
+  }).join('');
+  let svg = `<svg viewBox="0 0 400 240" width="100%" style="max-height:220px;display:block;margin:0.75rem auto 0">`;
+  HPE.forEach(([p,c]) => {
+    if (c>=arr.length) return;
+    svg += se(HPP[p][0],HPP[p][1],HPP[c][0],HPP[c][1], ai===p||ai===c?'a':'d');
+  });
+  arr.forEach((v,i) => {
+    const [x,y]=HPP[i]; const s=i===ai?'a':(i===0?'n':'d'); const c=NC(s);
+    svg += `<circle cx="${x}" cy="${y}" r="26" fill="${c.fill}" stroke="${c.s}" stroke-width="1.5"/>`;
+    svg += `<text x="${x}" y="${y+5}" text-anchor="middle" fill="${c.t}" font-family="JetBrains Mono,monospace" font-size="15" font-weight="700">${v}</text>`;
+    svg += `<text x="${x}" y="${y+46}" text-anchor="middle" fill="#555B73" font-family="JetBrains Mono,monospace" font-size="9">[${i}]</text>`;
+  });
+  svg += '</svg>';
+  const hint = arr.length ? `<div class="ds-hint">parent(i) = (i−1)//2 · left = 2i+1 · right = 2i+2</div>` : '';
+  return `<div class="ds-arr-row" style="justify-content:center;margin-bottom:0">${arrHtml}</div>${svg}${hint}`;
+}
+
+// ─── SVG: GRAPH ───────────────────────────────────────────────────────────────
+const GP = {A:[70,130],B:[195,60],C:[195,200],D:[320,130],E:[445,130]};
+const GE = [['A','B'],['A','C'],['B','D'],['C','D'],['D','E']];
+
+function graphV(visEdges, nStates, labels={}) {
+  const veSet = new Set(visEdges);
+  let svg = `<svg viewBox="0 0 520 260" width="100%" style="max-height:250px;display:block;margin:0 auto">`;
+  GE.forEach(([u,v]) => {
+    if (!veSet.has(`${u}-${v}`)&&!veSet.has(`${v}-${u}`)) return;
+    const [x1,y1]=GP[u],[x2,y2]=GP[v];
+    const both = nStates[u]==='v'&&nStates[v]==='v';
+    svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${both?'#34D399':'#2E3348'}" stroke-width="${both?2:1.5}"/>`;
+  });
+  Object.entries(GP).forEach(([n,[x,y]]) => {
+    const c = NC(nStates[n]||'d');
+    svg += `<circle cx="${x}" cy="${y}" r="28" fill="${c.fill}" stroke="${c.s}" stroke-width="1.5"/>`;
+    svg += `<text x="${x}" y="${y+6}" text-anchor="middle" fill="${c.t}" font-family="JetBrains Mono,monospace" font-size="16" font-weight="700">${n}</text>`;
+    if (labels[n]!=null) svg += `<text x="${x+36}" y="${y-14}" fill="${c.t}" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700">${labels[n]}</text>`;
+  });
+  return svg + '</svg>';
+}
+
+// ─── SVG: TRIE ────────────────────────────────────────────────────────────────
+const TPOS = {root:[300,32],c:[165,115],d:[435,115],a:[165,200],o:[435,200],t:[105,285],r:[225,285],g:[435,285]};
+const TEDGES = [['root','c','c'],['root','d','d'],['c','a','a'],['d','o','o'],['a','t','t'],['a','r','r'],['o','g','g']];
+const TENDS = new Set(['t','r','g']);
+
+function trieV(visNodes, nStates) {
+  const visSet = new Set(visNodes);
+  let svg = `<svg viewBox="0 0 580 325" width="100%" style="max-height:310px;display:block;margin:0 auto">`;
+  TEDGES.forEach(([from,to,ch]) => {
+    if (!visSet.has(from)||!visSet.has(to)) return;
+    const [x1,y1]=TPOS[from],[x2,y2]=TPOS[to];
+    const ts=nStates[to]||'d';
+    const es = ts==='v'?'#34D399':ts==='a'?'#A78BFA':ts==='e'?'#FF6B6B':ts==='f'?'#FFBE59':'#2E3348';
+    svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${es}" stroke-width="1.5"/>`;
+    svg += `<text x="${(x1+x2)/2+10}" y="${(y1+y2)/2+4}" fill="${es==='#2E3348'?'#555B73':es}" font-family="JetBrains Mono,monospace" font-size="12">'${ch}'</text>`;
+  });
+  visNodes.forEach(key => {
+    const [x,y]=TPOS[key]; const c=NC(nStates[key]||'d');
+    const ch = key==='root'?'·':key;
+    if (TENDS.has(key)) {
+      svg += `<circle cx="${x}" cy="${y}" r="22" fill="${c.fill}" stroke="${c.s}" stroke-width="1.5"/>`;
+      svg += `<circle cx="${x}" cy="${y}" r="14" fill="none" stroke="${c.s}" stroke-width="1" opacity="0.55"/>`;
+    } else {
+      svg += `<circle cx="${x}" cy="${y}" r="22" fill="${c.fill}" stroke="${c.s}" stroke-width="1.5"/>`;
+    }
+    svg += `<text x="${x}" y="${y+5}" text-anchor="middle" fill="${c.t}" font-family="JetBrains Mono,monospace" font-size="14" font-weight="700">${ch}</text>`;
+  });
+  svg += '</svg>';
+  const hasEnd = visNodes.some(n => TENDS.has(n));
+  return svg + (hasEnd ? `<div class="ds-hint">⊙ = is_end (end of word)</div>` : '');
+}
+
+// ─── UNION-FIND VIZ ───────────────────────────────────────────────────────────
+const UFG_COLORS = [
+  ['rgba(62,207,180,0.12)','#3ECFB4'],
+  ['rgba(167,139,250,0.12)','#A78BFA'],
+  ['rgba(255,190,89,0.12)','#FFBE59'],
+  ['rgba(255,107,107,0.1)','#FF6B6B'],
+  ['rgba(52,211,153,0.12)','#34D399'],
+];
+
+function ufV(groups, parent, hl={}) {
+  const gHtml = groups.map((grp,gi) => {
+    const [bg,bc] = UFG_COLORS[gi % UFG_COLORS.length];
+    const ns = grp.map(n => {
+      const over = hl[n];
+      let style='';
+      if (over==='a') style=`style="background:rgba(167,139,250,0.25);border-color:#A78BFA;color:#C4B5FD"`;
+      else if (over==='v') style=`style="background:rgba(52,211,153,0.25);border-color:#34D399;color:#34D399"`;
+      else if (over==='n') style=`style="background:rgba(62,207,180,0.25);border-color:#3ECFB4;color:#3ECFB4"`;
+      return `<div class="uf-node" ${style}>${n}</div>`;
+    }).join('');
+    return `<div class="uf-group" style="background:${bg};border-color:${bc}">${ns}</div>`;
+  }).join('');
+
+  const allNodes = [...new Set(groups.flat())].sort((a,b)=>a-b);
+  const pHtml = allNodes.map(n => {
+    const p = parent[n]??n; const isRoot=p===n;
+    return `<div class="ds-col"><div class="ds-idx">${n}</div><div class="ds-cell ${isRoot?'ds-v':'ds-d'}" style="width:36px;height:36px;font-size:13px">${p}</div></div>`;
+  }).join('');
+
+  return `<div class="uf-groups-row">${gHtml}</div>
+<div class="uf-parent-section">
+  <div class="uf-parent-lbl">parent[]</div>
+  <div class="ds-arr-row" style="justify-content:center;gap:4px">${pHtml}</div>
+</div>`;
+}
+
+// ─── STEPS ────────────────────────────────────────────────────────────────────
+const OC = {create:'ot-create',define:'ot-other','make_set':'ot-other',insert:'ot-insert','insert tail':'ot-insert','insert head':'ot-insert',push:'ot-insert',enqueue:'ot-insert',appendleft:'ot-insert','append right':'ot-insert',heappush:'ot-insert','add edges':'ot-other',union:'ot-insert',delete:'ot-delete',pop:'ot-delete','pop right':'ot-delete',dequeue:'ot-delete',popleft:'ot-delete',heappop:'ot-delete',traverse:'ot-traverse',BFS:'ot-traverse',DFS:'ot-traverse',inorder:'ot-traverse',search:'ot-search','search miss':'ot-search',find:'ot-search',access:'ot-search',peek:'ot-search',connected:'ot-search',startsWith:'ot-search','starts_with':'ot-search',complexity:'ot-other'};
+
+const STEPS = {
+
+array: [
+  { op:'create',   v: arrV([]),
+    x: `<strong>arr = []</strong> — Python lists are dynamic arrays. Capacity doubles when full, giving <span class="hi">O(1) amortized</span> append. Use <strong>arr = [0]*n</strong> to pre-allocate n zeros.` },
+  { op:'insert',   v: arrV([{v:5,s:'n'}]),
+    x: `<strong>arr.append(5)</strong> — adds 5 to the tail. <span class="hi">O(1) amortized</span>. arr = [5], len = 1.` },
+  { op:'insert',   v: arrV([{v:5,s:'d'},{v:3,s:'n'},{v:8,s:'n'}]),
+    x: `<strong>arr.append(3); arr.append(8)</strong> — arr = [5, 3, 8], len = 3. Indices are 0-based.` },
+  { op:'insert',   v: arrV([{v:5,s:'d'},{v:99,s:'n'},{v:3,s:'d'},{v:8,s:'d'}]),
+    x: `<strong>arr.insert(1, 99)</strong> — inserts 99 at index 1. Elements from index 1 onward shift right. <span class="hi">O(n)</span>. arr = [5, 99, 3, 8].` },
+  { op:'delete',   v: arrV([{v:5,s:'d'},{v:99,s:'rm'},{v:3,s:'d'},{v:8,s:'d'}]),
+    x: `<strong>arr.pop(1)</strong> — removes element at index 1 (value 99). Remaining elements shift left. <span class="hi">O(n)</span>.` },
+  { op:'delete',   v: arrV([{v:5,s:'d'},{v:3,s:'d'},{v:8,s:'d'}]),
+    x: `Result: arr = [5, 3, 8]. Compare: <strong>arr.pop()</strong> removes the <em>last</em> element in <span class="hi">O(1)</span> — always prefer tail removal.` },
+  { op:'traverse', v: arrV([{v:5,s:'a'},{v:3,s:'d'},{v:8,s:'d'}]),
+    x: `<strong>for i, x in enumerate(arr)</strong> — step 1: i=0, x=<span class="hi">5</span>.` },
+  { op:'traverse', v: arrV([{v:5,s:'v'},{v:3,s:'v'},{v:8,s:'v'}]),
+    x: `Traversal complete. All 3 elements visited in O(n): 5 → 3 → 8. <strong>arr.sort()</strong> is <span class="hi">O(n log n)</span> in-place (Timsort).` },
+],
+
+hashmap: [
+  { op:'create',   v: hmV([]),
+    x: `<strong>d = {}</strong> — Python dicts use hash tables. Keys are hashed to bucket indices. Average <span class="hi">O(1)</span> for get/set/delete. Python 3.7+ preserves insertion order.` },
+  { op:'insert',   v: hmV([{k:'name',v:'Alice',s:'n'}]),
+    x: `<strong>d["name"] = "Alice"</strong> — inserts key "name" with value "Alice". Hash("name") → bucket index → store pair. <span class="hi">O(1)</span> average.` },
+  { op:'insert',   v: hmV([{k:'name',v:'Alice',s:'d'},{k:'age',v:30,s:'n'}]),
+    x: `<strong>d["age"] = 30</strong> — inserts "age": 30. Each key hashes independently. Use <strong>defaultdict(int)</strong> for counters.` },
+  { op:'insert',   v: hmV([{k:'name',v:'Alice',s:'d'},{k:'age',v:30,s:'d'},{k:'lang',v:'Python',s:'n'}]),
+    x: `<strong>d["lang"] = "Python"</strong> — d now has 3 keys. Use <strong>d.get(key, default)</strong> for safe access without KeyError.` },
+  { op:'delete',   v: hmV([{k:'name',v:'Alice',s:'d'},{k:'age',v:30,s:'d'},{k:'lang',v:'Python',s:'rm'}]),
+    x: `<strong>del d["lang"]</strong> — removes key "lang" in <span class="hi">O(1)</span> average. Raises KeyError if absent. Use <strong>d.pop("lang", None)</strong> to suppress the error.` },
+  { op:'access',   v: hmV([{k:'name',v:'Alice',s:'d'},{k:'age',v:30,s:'a'}]),
+    x: `<strong>d["age"]</strong> → 30. <span class="hi">O(1)</span> average. Raises KeyError if absent — use <strong>d.get("age")</strong> (returns None) or <strong>d.get("age", 0)</strong> for a default.` },
+  { op:'traverse', v: hmV([{k:'name',v:'Alice',s:'v'},{k:'age',v:30,s:'v'}]),
+    x: `<strong>for k, v in d.items()</strong> — iterates all (key, value) pairs in insertion order. <span class="hi">O(n)</span>. Also: <strong>for k in d</strong> (keys), <strong>d.values()</strong>.` },
+],
+
+hashset: [
+  { op:'create',   v: hsV([]),
+    x: `<strong>s = set()</strong> — unordered collection of unique elements, backed by a hash table. <span class="hi">O(1)</span> average for add, remove, and membership check.` },
+  { op:'insert',   v: hsV([{v:3,s:'n'}]),
+    x: `<strong>s.add(3)</strong> — adds 3. <span class="hi">O(1)</span> average. s = {3}.` },
+  { op:'insert',   v: hsV([{v:3,s:'d'},{v:7,s:'n'},{v:1,s:'n'}]),
+    x: `<strong>s.add(7); s.add(1)</strong> — s = {1, 3, 7} (display order not guaranteed). Each element stored exactly once.` },
+  { op:'insert',   v: hsV([{v:3,s:'a'},{v:7,s:'d'},{v:1,s:'d'}]),
+    x: `<strong>s.add(3)</strong> — 3 is already in the set. <span class="hi">No-op</span> — set silently ignores duplicates. s still has 3 elements.` },
+  { op:'delete',   v: hsV([{v:3,s:'d'},{v:7,s:'rm'},{v:1,s:'d'}]),
+    x: `<strong>s.remove(7)</strong> — removes 7 in <span class="hi">O(1)</span>. Raises KeyError if absent. Use <strong>s.discard(7)</strong> to silently skip if not found.` },
+  { op:'search',   v: hsV([{v:3,s:'f'},{v:1,s:'d'}]),
+    x: `<strong>3 in s</strong> → True. <span class="hi">O(1)</span> average — this is the set's superpower over a list (<code>x in list</code> is O(n)). Use sets whenever you need fast lookup.` },
+],
+
+stack: [
+  { op:'create',  v: stkV([]),
+    x: `<strong>stack = []</strong> — use a plain Python list. <strong>append()</strong> pushes, <strong>pop()</strong> pops. Both <span class="hi">O(1)</span>. LIFO: last element added is the first removed.` },
+  { op:'push',    v: stkV([{v:1,s:'n'}]),
+    x: `<strong>stack.append(1)</strong> — push 1 onto the stack. top = 1.` },
+  { op:'push',    v: stkV([{v:1,s:'d'},{v:2,s:'d'},{v:3,s:'n'}]),
+    x: `<strong>stack.append(2); stack.append(3)</strong> — stack = [1, 2, 3], top = 3. Stack grows from bottom (index 0) upward.` },
+  { op:'peek',    v: stkV([{v:1,s:'d'},{v:2,s:'d'},{v:3,s:'a'}]),
+    x: `<strong>stack[-1]</strong> → 3. Peek at the top element without removing. <span class="hi">O(1)</span>. Always guard with <strong>if stack</strong> before peeking.` },
+  { op:'pop',     v: stkV([{v:1,s:'d'},{v:2,s:'d'},{v:3,s:'rm'}]),
+    x: `<strong>stack.pop()</strong> → removes and returns 3. <span class="hi">O(1)</span>. stack = [1, 2].` },
+  { op:'pop',     v: stkV([{v:1,s:'d'},{v:2,s:'v'}]),
+    x: `<strong>stack.pop()</strong> → 2. stack = [1]. Monotonic stack: keep popping while <strong>stack[-1] &gt;= x</strong> to find next-greater-element problems.` },
+],
+
+queue: [
+  { op:'create',   v: qV([]),
+    x: `<strong>from collections import deque; q = deque()</strong> — always use deque for queues. <strong>list.pop(0)</strong> is <span class="hi">O(n)</span>; <strong>deque.popleft()</strong> is O(1).` },
+  { op:'enqueue',  v: qV([{v:'A',s:'n'}],'front ▶','◀ back'),
+    x: `<strong>q.append("A")</strong> — adds to the back (right end). q = deque(['A']).` },
+  { op:'enqueue',  v: qV([{v:'A',s:'d'},{v:'B',s:'d'},{v:'C',s:'n'}],'front ▶','◀ back'),
+    x: `<strong>q.append("B"); q.append("C")</strong> — q = ['A','B','C']. FIFO: A was added first and will leave first.` },
+  { op:'peek',     v: qV([{v:'A',s:'a'},{v:'B',s:'d'},{v:'C',s:'d'}],'front ▶','◀ back'),
+    x: `<strong>q[0]</strong> → "A". Peek front without removing. <span class="hi">O(1)</span>.` },
+  { op:'dequeue',  v: qV([{v:'A',s:'rm'},{v:'B',s:'d'},{v:'C',s:'d'}],'front ▶','◀ back'),
+    x: `<strong>q.popleft()</strong> → "A". Removes from front. <span class="hi">O(1)</span>. q = deque(['B','C']).` },
+  { op:'dequeue',  v: qV([{v:'B',s:'rm'},{v:'C',s:'d'}],'front ▶','◀ back'),
+    x: `<strong>q.popleft()</strong> → "B". q = deque(['C']). BFS: enqueue root, then dequeue and enqueue neighbors. Level-by-level traversal.` },
+],
+
+deque: [
+  { op:'create',        v: qV([]),
+    x: `<strong>d = deque()</strong> — double-ended queue with <span class="hi">O(1)</span> operations at both ends. <strong>deque(maxlen=k)</strong> creates a bounded window that auto-evicts the oldest element.` },
+  { op:'append right',  v: qV([{v:1,s:'n'}],'◀ left','right ▶'),
+    x: `<strong>d.append(1)</strong> — adds to the right end. d = deque([1]).` },
+  { op:'appendleft',    v: qV([{v:0,s:'n'},{v:1,s:'d'}],'◀ left','right ▶'),
+    x: `<strong>d.appendleft(0)</strong> — adds to the left end. d = deque([0, 1]). O(1) at both ends — unlike a list where insert(0) is O(n).` },
+  { op:'append right',  v: qV([{v:0,s:'d'},{v:1,s:'d'},{v:2,s:'n'}],'◀ left','right ▶'),
+    x: `<strong>d.append(2)</strong> — d = deque([0, 1, 2]).` },
+  { op:'popleft',       v: qV([{v:0,s:'rm'},{v:1,s:'d'},{v:2,s:'d'}],'◀ left','right ▶'),
+    x: `<strong>d.popleft()</strong> → 0. d = deque([1, 2]). Monotonic deque for sliding window max: pop from right while back ≤ new element; pop from left when index exits window.` },
+  { op:'pop right',     v: qV([{v:1,s:'d'},{v:2,s:'rm'}],'◀ left','right ▶'),
+    x: `<strong>d.pop()</strong> → 2. d = deque([1]). Both ends are O(1) — this is the key advantage over a plain list.` },
+],
+
+linkedlist: [
+  { op:'define',      v: `<div class="ds-empty">class ListNode:<br>&nbsp;&nbsp;self.val = val<br>&nbsp;&nbsp;self.next = None</div>`,
+    x: `<strong>class ListNode</strong>: each node stores a <span class="hi">val</span> and a pointer <span class="hi">next</span>. Build chains by linking <code>.next</code>. Use a <strong>dummy head</strong> node to simplify insert/delete at the head.` },
+  { op:'create',      v: llV([{v:1,s:'n'}]),
+    x: `<strong>head = ListNode(1)</strong> — single node, head.next = None. 1 → None.` },
+  { op:'insert tail', v: llV([{v:1,s:'d'},{v:2,s:'n'}]),
+    x: `<strong>tail.next = ListNode(2)</strong> — walk to the end, append. <span class="hi">O(n)</span>. 1 → 2 → None. Keep a tail pointer to reduce to O(1).` },
+  { op:'insert head', v: llV([{v:0,s:'n'},{v:1,s:'d'},{v:2,s:'d'}]),
+    x: `<strong>new_node.next = head; head = new_node</strong> — insert at head in <span class="hi">O(1)</span>. 0 → 1 → 2 → None. No shifting needed.` },
+  { op:'delete',      v: llV([{v:0,s:'d'},{v:1,s:'a'},{v:2,s:'rm'}]),
+    x: `<strong>prev.next = prev.next.next</strong> — delete a node in <span class="hi">O(1)</span> once you have its predecessor. prev (node 1) skips over node 2.` },
+  { op:'traverse',    v: llV([{v:0,s:'v'},{v:1,s:'v'}]),
+    x: `<strong>cur = head; while cur: cur = cur.next</strong> — traverse from head to None. <span class="hi">O(n)</span>. Two-pointer: slow moves +1, fast moves +2 — detects cycles when they meet.` },
+],
+
+binarytree: [
+  { op:'create',    v: `<div class="ds-empty">root = None</div>`,
+    x: `<strong>class TreeNode(val, left, right)</strong>. BST property: left subtree values < node.val < right subtree values. All recursive solutions rely on base case <strong>if not root: return</strong>.` },
+  { op:'insert',   v: btV([5],{5:'n'}),
+    x: `<strong>root = TreeNode(5)</strong> — single root. An empty tree becomes a root when the first value is inserted.` },
+  { op:'insert',   v: btV([5,3],{5:'d',3:'n'}),
+    x: `<strong>insert(3)</strong> — 3 < 5, go left. 3 placed as left child of 5. BST property maintained.` },
+  { op:'insert',   v: btV([5,3,7],{5:'d',3:'d',7:'n'}),
+    x: `<strong>insert(7)</strong> — 7 > 5, go right. 7 placed as right child of 5.` },
+  { op:'insert',   v: btV([5,3,7,1,4],{5:'d',3:'d',7:'d',1:'n',4:'n'}),
+    x: `<strong>insert(1)</strong>: 1 < 5 → left, 1 < 3 → left of 3. <strong>insert(4)</strong>: 4 < 5 → left, 4 > 3 → right of 3.` },
+  { op:'inorder',  v: btV([5,3,7,1,4],{1:'v',3:'v',4:'v',5:'v',7:'v'}),
+    x: `<strong>inorder(root)</strong> → [1, 3, 4, 5, 7]. Left → Root → Right. <span class="hi">Inorder of a BST yields sorted output</span>. Preorder = root-left-right. Postorder = left-right-root.` },
+  { op:'search',   v: btV([5,3,7,1,4],{5:'a',3:'a',4:'f'}),
+    x: `<strong>search(4)</strong> — 4 < 5 → go left, 4 > 3 → go right → found 4. Path: 5 → 3 → 4. <span class="hi">O(h)</span> where h = height. Balanced: O(log n). Degenerate: O(n).` },
+],
+
+heap: [
+  { op:'create',   v: heapV([]),
+    x: `<strong>import heapq; heap = []</strong> — Python's heapq is a min-heap stored as a flat list. heap[0] is always the minimum. O(n) heapify, O(log n) push/pop.` },
+  { op:'heappush', v: heapV([5]),
+    x: `<strong>heapq.heappush(heap, 5)</strong> — inserts 5. heap = [5]. <span class="hi">O(log n)</span>: inserts at the end, then bubbles up to restore the heap property.` },
+  { op:'heappush', v: heapV([3,5], 0),
+    x: `<strong>heapq.heappush(heap, 3)</strong> — 3 appended at i=1, then compared to parent(1)=heap[0]=5. 3 < 5 → swap. heap = [3, 5]. Root is now min.` },
+  { op:'heappush', v: heapV([3,5,7], 2),
+    x: `<strong>heapq.heappush(heap, 7)</strong> — 7 appended at i=2, compared to parent(2)=heap[0]=3. 7 > 3 → no swap. heap = [3, 5, 7].` },
+  { op:'heappush', v: heapV([1,3,7,5], 0),
+    x: `<strong>heapq.heappush(heap, 1)</strong> — 1 appended at i=3, bubbles up: parent(3)=heap[1]=3, 1 < 3 → swap. Then parent(1)=heap[0]=3, 1 < 3 → swap. heap = [1, 3, 7, 5].` },
+  { op:'peek',     v: heapV([1,3,7,5], 0),
+    x: `<strong>heap[0]</strong> → 1. <span class="hi">O(1)</span> peek at minimum. heap[0] is always the minimum in a valid min-heap.` },
+  { op:'heappop',  v: heapV([3,5,7]),
+    x: `<strong>heapq.heappop(heap)</strong> → 1. Last element moves to root, sifts down. <span class="hi">O(log n)</span>. heap = [3, 5, 7]. Max-heap trick: <strong>heapq.heappush(h, -x)</strong>.` },
+],
+
+graph: [
+  { op:'create',    v: graphV([],{A:'d',B:'d',C:'d',D:'d',E:'d'}),
+    x: `<strong>graph = defaultdict(list)</strong> — adjacency list representation. Each node maps to a list of neighbors. Space: <span class="hi">O(V + E)</span>.` },
+  { op:'add edges', v: graphV(['A-B','A-C'],{A:'n',B:'n',C:'n',D:'d',E:'d'}),
+    x: `<strong>graph["A"] += ["B","C"]</strong> — directed edges A→B and A→C. For undirected: also add B→A and C→A.` },
+  { op:'add edges', v: graphV(['A-B','A-C','B-D','C-D','D-E'],{A:'d',B:'d',C:'d',D:'n',E:'n'}),
+    x: `<strong>Add B-D, C-D, D-E</strong> — full graph. Adjacency list: A:[B,C], B:[A,D], C:[A,D], D:[B,C,E], E:[D].` },
+  { op:'BFS',       v: graphV(['A-B','A-C','B-D','C-D','D-E'],{A:'a',B:'d',C:'d',D:'d',E:'d'},{A:'1'}),
+    x: `<strong>BFS from A</strong>: q = deque([A]), visited = {A}. Dequeue A. BFS visits nodes <span class="hi">level by level</span> — finds shortest path (by hop count) in unweighted graphs.` },
+  { op:'BFS',       v: graphV(['A-B','A-C','B-D','C-D','D-E'],{A:'v',B:'a',C:'a',D:'d',E:'d'},{A:'1',B:'2',C:'3'}),
+    x: `<strong>BFS: visit A's neighbors</strong> — enqueue B and C. Visit order: A(1)→B(2)→C(3). visited set prevents re-visiting.` },
+  { op:'BFS',       v: graphV(['A-B','A-C','B-D','C-D','D-E'],{A:'v',B:'v',C:'v',D:'v',E:'v'},{A:'1',B:'2',C:'3',D:'4',E:'5'}),
+    x: `<strong>BFS complete</strong> — A(1)→B(2)→C(3)→D(4)→E(5). <span class="hi">O(V+E)</span>. DFS: replace deque with a stack (or use recursion). DFS powers cycle detection and topological sort.` },
+],
+
+trie: [
+  { op:'create',     v: trieV(['root'],{root:'n'}),
+    x: `<strong>Trie()</strong> — root TrieNode with empty children dict. Each node: <strong>children = {}</strong> (char → TrieNode), <strong>is_end = False</strong>. All operations: <span class="hi">O(m)</span> where m = word length.` },
+  { op:'insert',     v: trieV(['root','c','a','t'],{root:'d',c:'n',a:'n',t:'n'}),
+    x: `<strong>insert("cat")</strong> — creates root→c→a→t, sets t.is_end = True. Each missing character creates a new TrieNode. Shared prefixes share nodes.` },
+  { op:'insert',     v: trieV(['root','c','a','t','r'],{root:'d',c:'d',a:'d',t:'d',r:'n'}),
+    x: `<strong>insert("car")</strong> — root→c→a already exists (shared prefix "ca"). Only a new 'r' node is created. t and r are siblings under 'a'.` },
+  { op:'insert',     v: trieV(['root','c','d','a','o','t','r','g'],{root:'d',c:'d',d:'n',a:'d',o:'n',t:'d',r:'d',g:'n'}),
+    x: `<strong>insert("dog")</strong> — new branch from root: d→o→g. Trie now holds three words: cat, car, dog.` },
+  { op:'search',     v: trieV(['root','c','d','a','o','t','r','g'],{root:'a',c:'a',d:'d',a:'a',o:'d',t:'f',r:'d',g:'d'}),
+    x: `<strong>search("cat")</strong> — traverse c→a→t, check t.is_end → <span class="hi">True</span>. If any character is missing or is_end is False → return False.` },
+  { op:'startsWith', v: trieV(['root','c','d','a','o','t','r','g'],{root:'v',c:'v',d:'d',a:'v',o:'d',t:'d',r:'d',g:'d'}),
+    x: `<strong>starts_with("ca")</strong> — traverse c→a. No need to check is_end — prefix just needs to exist → <span class="hi">True</span>. Returns True even if "ca" isn't a full word.` },
+  { op:'search miss',v: trieV(['root','c','d','a','o','t','r','g'],{root:'a',c:'a',d:'d',a:'e',o:'d',t:'d',r:'d',g:'d'}),
+    x: `<strong>search("cab")</strong> — traverse c→a, look for 'b' in a.children → <span class="hi">not found</span>. Return False immediately. No need to check the rest.` },
+],
+
+unionfind: [
+  { op:'make_set',  v: ufV([[1],[2],[3],[4],[5]],{1:1,2:2,3:3,4:4,5:5}),
+    x: `<strong>UnionFind(5)</strong> — parent[i] = i for all i. Each element is its own root (5 disjoint sets). rank[i] = 0. <span class="hi">O(n)</span> initialization.` },
+  { op:'union',     v: ufV([[1,2],[3],[4],[5]],{1:1,2:1,3:3,4:4,5:5},{1:'n',2:'n'}),
+    x: `<strong>union(1, 2)</strong> — find(1)=1, find(2)=2. Same rank, so parent[2]=1. Component {1,2} formed with root 1. <span class="hi">O(α(n))</span>.` },
+  { op:'union',     v: ufV([[1,2],[3,4],[5]],{1:1,2:1,3:3,4:3,5:5},{3:'n',4:'n'}),
+    x: `<strong>union(3, 4)</strong> — find(3)=3, find(4)=4. parent[4]=3. Component {3,4} formed with root 3.` },
+  { op:'union',     v: ufV([[1,2,3,4],[5]],{1:1,2:1,3:1,4:3,5:5},{1:'a',3:'a'}),
+    x: `<strong>union(2, 3)</strong> — find(2)=1, find(3)=3. rank[1]=rank[3]=1 (tie), so parent[3]=1. Components {1,2} and {3,4} merge into {1,2,3,4}.` },
+  { op:'find',      v: ufV([[1,2,3,4],[5]],{1:1,2:1,3:1,4:1,5:5},{4:'a',3:'a',1:'v'}),
+    x: `<strong>find(4)</strong> with <span class="hi">path compression</span>: follow 4→3→1 (root). After: parent[4]=1, parent[3]=1 directly. Future find(4) is O(1).` },
+  { op:'union',     v: ufV([[1,2,3,4,5]],{1:1,2:1,3:1,4:1,5:1},{5:'n',1:'n'}),
+    x: `<strong>union(1, 5)</strong> — find(1)=1, find(5)=5. parent[5]=1. All 5 nodes in one component! components count = 1.` },
+  { op:'connected', v: ufV([[1,2,3,4,5]],{1:1,2:1,3:1,4:1,5:1},{1:'v',2:'v',3:'v',4:'v',5:'v'}),
+    x: `<strong>connected(2, 5)</strong> — find(2)=1, find(5)=1, same root → <span class="hi">True</span>. With path compression + union by rank: effectively <span class="hi">O(1)</span> per operation.` },
+],
+
+};
+
+// ─── PYTHON CODE ──────────────────────────────────────────────────────────────
+const CODE = {
+array: `# Create
+arr = []
+arr = [1, 2, 3]
+arr = [0] * n               # n zeros
+arr = list(range(n))        # 0..n-1
+
+# Insert
+arr.append(x)               # O(1) amortized
+arr.insert(i, x)            # at index i, O(n)
+
+# Delete
+arr.pop()                   # remove last,  O(1)
+arr.pop(i)                  # remove at i,  O(n)
+arr.remove(x)               # first x,      O(n)
+del arr[i]                  # delete at i,  O(n)
+
+# Access
+arr[i]                      # O(1)
+arr[-1]                     # last element
+arr[1:3]                    # slice,  O(k)
+x in arr                    # search, O(n)
+arr.index(x)                # first index of x
+
+# Traverse
+for x in arr:
+    pass
+for i, x in enumerate(arr):
+    pass
+
+# Sort
+arr.sort()                  # in-place, O(n log n)
+sorted(arr)                 # new list, O(n log n)
+arr.sort(key=lambda x: -x)  # custom key`,
+
+hashmap: `from collections import defaultdict, Counter
+
+# Create
+d = {}
+d = defaultdict(int)        # 0 for missing keys
+d = defaultdict(list)       # [] for missing keys
+c = Counter("aababc")       # char frequency
+
+# Insert / Update
+d[key] = val                # O(1) avg
+d.setdefault(key, 0)        # set only if key absent
+d[key] = d.get(key, 0) + 1 # increment pattern
+
+# Delete
+del d[key]                  # KeyError if absent
+d.pop(key)                  # same but returns val
+d.pop(key, None)            # safe — returns None
+
+# Access
+d[key]                      # KeyError if absent
+d.get(key)                  # None if absent
+d.get(key, default)         # custom fallback
+key in d                    # O(1) membership
+
+# Traverse
+for k in d:
+    pass
+for v in d.values():
+    pass
+for k, v in d.items():
+    pass`,
+
+hashset: `# Create
+s = set()
+s = {1, 2, 3}
+s = set(arr)                # from list (deduplicates)
+
+# Insert / Delete
+s.add(x)                    # O(1) avg, ignores dups
+s.remove(x)                 # KeyError if absent
+s.discard(x)                # safe — no error
+
+# Membership (the key advantage)
+x in s                      # O(1) avg  ← vs O(n) for list
+x not in s
+
+# Set operations
+s1 | s2                     # union
+s1 & s2                     # intersection
+s1 - s2                     # difference
+s1 ^ s2                     # symmetric difference
+s1 <= s2                    # is subset?
+s1 >= s2                    # is superset?
+
+# Convert
+sorted(s)                   # sorted list from set
+
+# Traverse
+for x in s:                 # order not guaranteed
+    pass`,
+
+stack: `# Create (use plain list)
+stack = []
+
+# Push
+stack.append(x)             # O(1)
+
+# Pop
+stack.pop()                 # O(1), raises if empty
+val = stack.pop() if stack else None
+
+# Peek
+stack[-1]                   # O(1), raises if empty
+top = stack[-1] if stack else None
+
+# Check
+len(stack)
+not stack                   # is empty
+
+# Monotonic stack (next greater element)
+stack, result = [], [-1] * len(arr)
+for i, x in enumerate(arr):
+    while stack and arr[stack[-1]] < x:
+        result[stack.pop()] = x
+    stack.append(i)
+
+# Valid parentheses
+stack = []
+for ch in s:
+    if ch in '([{':
+        stack.append(ch)
+    elif stack and matches(stack[-1], ch):
+        stack.pop()
+    else:
+        return False
+return not stack`,
+
+queue: `from collections import deque
+
+# Create
+q = deque()
+q = deque([1, 2, 3])
+
+# Enqueue (add to back)
+q.append(x)                 # O(1) ← always use deque!
+
+# Dequeue (remove from front)
+q.popleft()                 # O(1)
+# list.pop(0) is O(n) — never use list as a queue
+
+# Peek
+q[0]                        # front, O(1)
+q[-1]                       # back,  O(1)
+
+# Check
+len(q)
+not q                       # is empty
+
+# BFS template
+q = deque([start])
+visited = {start}
+while q:
+    node = q.popleft()
+    for nei in graph[node]:
+        if nei not in visited:
+            visited.add(nei)
+            q.append(nei)
+
+# BFS with distance tracking
+q = deque([(start, 0)])
+visited = {start}
+while q:
+    node, dist = q.popleft()
+    for nei in graph[node]:
+        if nei not in visited:
+            visited.add(nei)
+            q.append((nei, dist + 1))`,
+
+deque: `from collections import deque
+
+# Create
+d = deque()
+d = deque([1, 2, 3])
+d = deque(maxlen=k)         # auto-evicts on overflow
+
+# Both ends: O(1)
+d.append(x)                 # add to right
+d.appendleft(x)             # add to left
+d.pop()                     # remove from right
+d.popleft()                 # remove from left
+
+# Peek
+d[0]                        # left  O(1)
+d[-1]                       # right O(1)
+
+# Sliding window maximum
+d = deque()                 # stores indices (monotone)
+for i in range(len(nums)):
+    if d and d[0] <= i - k:
+        d.popleft()         # out of window
+    while d and nums[d[-1]] <= nums[i]:
+        d.pop()             # smaller — useless
+    d.append(i)
+    if i >= k - 1:
+        result.append(nums[d[0]])`,
+
+linkedlist: `class ListNode:
+    def __init__(self, val=0, nxt=None):
+        self.val = val
+        self.next = nxt
+
+# Build from list (dummy head pattern)
+def build(vals):
+    dummy = ListNode(0)
+    cur = dummy
+    for v in vals:
+        cur.next = ListNode(v)
+        cur = cur.next
+    return dummy.next       # actual head
+
+# Insert at head: O(1)
+new_node.next = head
+head = new_node
+
+# Insert at tail: O(n)
+cur = head
+while cur.next: cur = cur.next
+cur.next = ListNode(x)
+
+# Delete node (need predecessor): O(1)
+prev.next = prev.next.next
+
+# Traverse
+cur = head
+while cur:
+    print(cur.val)
+    cur = cur.next
+
+# Reverse in-place
+prev, cur = None, head
+while cur:
+    nxt = cur.next
+    cur.next = prev
+    prev, cur = cur, nxt
+return prev                 # new head
+
+# Detect cycle (Floyd's)
+slow = fast = head
+while fast and fast.next:
+    slow = slow.next
+    fast = fast.next.next
+    if slow is fast: return True
+return False`,
+
+binarytree: `class TreeNode:
+    def __init__(self, val=0, l=None, r=None):
+        self.val = val
+        self.left = l
+        self.right = r
+
+# BST Insert (recursive)
+def insert(root, val):
+    if not root: return TreeNode(val)
+    if val < root.val:
+        root.left = insert(root.left, val)
+    else:
+        root.right = insert(root.right, val)
+    return root             # O(h)
+
+# BST Search
+def search(root, val):
+    if not root or root.val == val: return root
+    if val < root.val: return search(root.left, val)
+    return search(root.right, val)  # O(h)
+
+# Traversals (DFS)
+def inorder(r):             # sorted for BST
+    return inorder(r.left)+[r.val]+inorder(r.right) if r else []
+def preorder(r):            # root-left-right
+    return [r.val]+preorder(r.left)+preorder(r.right) if r else []
+def postorder(r):           # left-right-root
+    return postorder(r.left)+postorder(r.right)+[r.val] if r else []
+
+# Level-order (BFS)
+from collections import deque
+def level_order(root):
+    if not root: return []
+    q, res = deque([root]), []
+    while q:
+        node = q.popleft()
+        res.append(node.val)
+        if node.left:  q.append(node.left)
+        if node.right: q.append(node.right)
+    return res
+
+# Tree height
+def height(root):
+    if not root: return 0
+    return 1 + max(height(root.left), height(root.right))`,
+
+heap: `import heapq
+
+# Create
+heap = []
+heapq.heapify(arr)          # O(n) in-place min-heap
+
+# Push
+heapq.heappush(heap, x)    # O(log n)
+
+# Pop (extract min)
+heapq.heappop(heap)         # O(log n), raises if empty
+val = heapq.heappop(heap) if heap else None
+
+# Peek min
+heap[0]                     # O(1)
+
+# Max-heap (negate values)
+heapq.heappush(heap, -x)
+max_val = -heapq.heappop(heap)
+
+# k smallest / largest
+heapq.nsmallest(k, arr)     # O(n log k)
+heapq.nlargest(k, arr)      # O(n log k)
+
+# Custom priority (tuple — sorted by first element)
+heapq.heappush(heap, (priority, item))
+heapq.heappush(heap, (dist, node))   # Dijkstra's
+
+# Push then pop (more efficient than separate calls)
+heapq.heappushpop(heap, x)  # push x, pop min
+heapq.heapreplace(heap, x)  # pop min, push x`,
+
+graph: `from collections import defaultdict, deque
+
+# Create
+graph = defaultdict(list)
+
+# Add edges
+graph[u].append(v)               # directed
+graph[u].append(v)               # undirected:
+graph[v].append(u)               # add both directions
+
+# BFS — shortest path (unweighted)
+def bfs(start):
+    q = deque([start])
+    visited = {start}
+    dist = {start: 0}
+    while q:
+        node = q.popleft()
+        for nei in graph[node]:
+            if nei not in visited:
+                visited.add(nei)
+                dist[nei] = dist[node] + 1
+                q.append(nei)
+    return dist                  # O(V + E)
+
+# DFS — iterative
+def dfs(start):
+    stack, visited, order = [start], set(), []
+    while stack:
+        node = stack.pop()
+        if node in visited: continue
+        visited.add(node); order.append(node)
+        for nei in graph[node]:
+            stack.append(nei)
+    return order                 # O(V + E)
+
+# DFS — recursive
+def dfs_r(node, visited=None):
+    if visited is None: visited = set()
+    visited.add(node)
+    for nei in graph[node]:
+        if nei not in visited:
+            dfs_r(nei, visited)`,
+
+trie: `class TrieNode:
+    def __init__(self):
+        self.children = {}   # char → TrieNode
+        self.is_end = False
+
+class Trie:
+    def __init__(self):
+        self.root = TrieNode()
+
+    def insert(self, word):          # O(m)
+        node = self.root
+        for ch in word:
+            if ch not in node.children:
+                node.children[ch] = TrieNode()
+            node = node.children[ch]
+        node.is_end = True
+
+    def search(self, word):          # O(m)
+        node = self.root
+        for ch in word:
+            if ch not in node.children:
+                return False
+            node = node.children[ch]
+        return node.is_end           # must end here
+
+    def starts_with(self, prefix):   # O(m)
+        node = self.root
+        for ch in prefix:
+            if ch not in node.children:
+                return False
+            node = node.children[ch]
+        return True                  # just needs to exist
+
+    # Count words with prefix (extension)
+    def count_prefix(self, prefix):
+        node = self.root
+        for ch in prefix:
+            if ch not in node.children: return 0
+            node = node.children[ch]
+        def dfs(n):
+            return (1 if n.is_end else 0) + sum(dfs(c) for c in n.children.values())
+        return dfs(node)`,
+
+unionfind: `class UnionFind:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.rank = [0] * n
+        self.count = n          # components
+
+    def find(self, x):          # O(α(n)) ≈ O(1)
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]   # path compression
+
+    def union(self, x, y):      # O(α(n))
+        rx, ry = self.find(x), self.find(y)
+        if rx == ry: return False
+        if self.rank[rx] < self.rank[ry]:
+            rx, ry = ry, rx
+        self.parent[ry] = rx    # union by rank
+        if self.rank[rx] == self.rank[ry]:
+            self.rank[rx] += 1
+        self.count -= 1
+        return True
+
+    def connected(self, x, y):
+        return self.find(x) == self.find(y)
+
+# Simple dict version (dynamic / string nodes)
+parent, rank = {}, {}
+
+def find(x):
+    if parent.setdefault(x, x) != x:
+        parent[x] = find(parent[x])
+    return parent[x]
+
+def union(x, y):
+    rx, ry = find(x), find(y)
+    if rx == ry: return
+    if rank.get(rx, 0) < rank.get(ry, 0):
+        rx, ry = ry, rx
+    parent[ry] = rx
+    if rank.get(rx,0) == rank.get(ry,0):
+        rank[rx] = rank.get(rx, 0) + 1`,
+};
+
+// ─── COMPLEXITY & INFO DATA ───────────────────────────────────────────────────
+const INFO = {
+  array:      { ops:[['access[i]','O(1)'],['append','O(1)*'],['insert(i,x)','O(n)'],['pop()','O(1)'],['pop(i)','O(n)'],['search','O(n)'],['sort','O(n log n)']], space:'O(n)', use:['O(1) random access needed','Two-pointer / sliding window','Prefix sum arrays','Stack (append+pop)'], tips:['pop(0) is O(n) — use deque','Slicing creates a copy: O(k)','sort() is in-place; sorted() returns new'] },
+  hashmap:    { ops:[['get / set','O(1) avg'],['del','O(1) avg'],['key in d','O(1) avg'],['iteration','O(n)']], space:'O(n)', use:['Frequency counting (Counter)','Memoization cache','Graph adjacency (defaultdict)','Two-sum / complement lookup'], tips:['d[k] raises KeyError — use d.get(k)','defaultdict avoids setdefault boilerplate','Counter most_common(k) is O(n log k)'] },
+  hashset:    { ops:[['add','O(1) avg'],['remove','O(1) avg'],['x in s','O(1) avg'],['iteration','O(n)']], space:'O(n)', use:['Deduplication','Visited tracking in BFS/DFS','Two-sum: complement in set?','Cycle detection'], tips:['remove() raises KeyError — use discard()','Sets are unordered — don\'t rely on order','frozenset for hashable sets as dict keys'] },
+  stack:      { ops:[['push (append)','O(1)'],['pop','O(1)'],['peek ([-1])','O(1)'],['len','O(1)']], space:'O(n)', use:['Parenthesis matching','Monotonic stack: next greater element','DFS iterative','Evaluate expressions / undo'], tips:['Check "if stack" before pop/peek','Monotonic stack: pop while violating condition','Use deque for thread-safe stack'] },
+  queue:      { ops:[['append (enqueue)','O(1)'],['popleft (dequeue)','O(1)'],['q[0] peek','O(1)'],['len','O(1)']], space:'O(n)', use:['BFS traversal','Level-order tree traversal','Sliding window (with deque)','Task scheduling (FIFO)'], tips:['Never use list.pop(0) — O(n)','deque is O(1) popleft','q[0] raises IndexError if empty'] },
+  deque:      { ops:[['append / appendleft','O(1)'],['pop / popleft','O(1)'],['d[0] / d[-1]','O(1)'],['maxlen eviction','O(1)']], space:'O(n)', use:['Sliding window maximum','BFS (use as queue)','Monotonic deque','Bounded history with maxlen'], tips:['maxlen deque auto-evicts on append','Rotate: d.rotate(1) moves last to front','Can index d[i] but O(n) for middle'] },
+  linkedlist: { ops:[['insert head','O(1)'],['insert tail','O(n)*'],['delete (prev known)','O(1)'],['search','O(n)'],['traverse','O(n)']], space:'O(n)', use:['When head insert/delete is frequent','Implementing stacks/queues','In-place reversal problems','Cycle detection (fast/slow)'], tips:['Use dummy head to simplify edge cases','Store tail pointer for O(1) tail insert','Two-pointer: fast=head.next.next, slow=head'] },
+  binarytree: { ops:[['insert (BST)','O(h)'],['search (BST)','O(h)'],['inorder','O(n)'],['level-order','O(n)']], space:'O(n)', use:['BST: sorted range queries','Expression trees','Heap backing structure','Divide-and-conquer (binary search)'], tips:['Balanced BST: h=O(log n); degenerate: h=O(n)','Inorder BST → sorted array','Check None before accessing .left/.right'] },
+  heap:       { ops:[['heappush','O(log n)'],['heappop','O(log n)'],['heap[0] peek','O(1)'],['heapify','O(n)']], space:'O(n)', use:['k-th smallest/largest element','Dijkstra / Prim priority queue','Merge k sorted lists','Running median (two heaps)'], tips:['Python heapq = min-heap only','Max-heap: negate all values','heappushpop is slightly faster than push+pop'] },
+  graph:      { ops:[['add edge','O(1)'],['BFS','O(V+E)'],['DFS','O(V+E)'],['space (adj list)','O(V+E)']], space:'O(V+E)', use:['Shortest path (BFS unweighted)','Connected components','Cycle detection','Topological sort (Kahn\'s / DFS)'], tips:['Always use a visited set','defaultdict(list) avoids KeyError on missing nodes','For weighted graphs, use (weight, neighbor) tuples'] },
+  trie:       { ops:[['insert','O(m)'],['search','O(m)'],['starts_with','O(m)'],['space','O(n·m)']], space:'O(n·m)', use:['Autocomplete / prefix matching','Word search (Boggle)','Replace regex when prefix operations needed','Bitwise trie (XOR problems)'], tips:['m = length of word/prefix','Share prefix nodes — only branch at differences','is_end must be True for exact word match'] },
+  unionfind:  { ops:[['find (w/ path comp.)','O(α(n))'],['union (by rank)','O(α(n))'],['connected','O(α(n))'],['init','O(n)']], space:'O(n)', use:['Detect cycle in undirected graph','Kruskal\'s MST','Number of connected components','Accounts merge / friend circles'], tips:['α(n) ≈ O(1) for all practical n','Always use path compression + union by rank','count -= 1 on successful union to track components'] },
+};
+
+// ─── RENDER INFO ──────────────────────────────────────────────────────────────
+function renderInfo(ds) {
+  const info = INFO[ds];
+  const el = document.getElementById('info-' + ds);
+  if (!el || !info) return;
+
+  const opsHtml = info.ops.map(([op,t]) =>
+    `<div class="cr"><div class="co">${op}</div><div class="ct">${t}</div></div>`
+  ).join('');
+
+  const useHtml = info.use.map(u => `<li>${u}</li>`).join('');
+  const tipsHtml = info.tips.map(t => `<li>${t}</li>`).join('');
+
+  el.innerHTML = `<div class="panel-title">Complexity</div>
+<div class="cplx-table">${opsHtml}</div>
+<div class="use-section">
+  <div class="use-lbl">When to use</div>
+  <ul class="use-list">${useHtml}</ul>
+</div>
+<div class="use-section" style="margin-top:10px">
+  <div class="use-lbl">Gotchas</div>
+  <ul class="use-list">${tipsHtml}</ul>
+</div>
+<div class="complexity-row">
+  <span class="badge badge-space">space: ${info.space}</span>
+</div>`;
+}
+
+// ─── CONTROLLER ───────────────────────────────────────────────────────────────
+const state = {};
+Object.keys(STEPS).forEach(ds => { state[ds] = { cur: 0, timer: null }; });
+
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderCode(ds) {
+  const el = document.getElementById('code-' + ds);
+  if (!el) return;
+  el.innerHTML = CODE[ds].split('\n').map(line => {
+    const t = line.trimStart();
+    return t.startsWith('#') ? `<span class="cm">${esc(line)}</span>` : esc(line);
+  }).join('\n');
+}
+
+function render(ds) {
+  const s = state[ds];
+  const step = STEPS[ds][s.cur];
+  const vizEl = document.getElementById('viz-' + ds);
+  const expEl = document.getElementById('exp-' + ds);
+  const ctrEl = document.getElementById('ctr-' + ds);
+  const opEl  = document.getElementById('op-'  + ds);
+
+  vizEl.innerHTML = typeof step.v === 'function' ? step.v() : step.v;
+  expEl.innerHTML = step.x;
+  ctrEl.textContent = `step ${s.cur} / ${STEPS[ds].length - 1}`;
+  opEl.textContent  = step.op;
+  opEl.className    = 'op-tag ' + (OC[step.op] || 'ot-other');
+
+  vizEl.classList.remove('anim');
+  requestAnimationFrame(() => vizEl.classList.add('anim'));
+}
+
+function go(ds, dir) {
+  const s = state[ds];
+  const next = s.cur + dir;
+  if (next < 0 || next >= STEPS[ds].length) { if (s.timer) stopPlay(ds); return; }
+  s.cur = next;
+  render(ds);
+}
+
+function stopPlay(ds) {
+  clearInterval(state[ds].timer);
+  state[ds].timer = null;
+  const btn = document.getElementById('play-' + ds);
+  if (btn) { btn.textContent = '▶ Play'; btn.classList.remove('playing'); btn.classList.add('primary'); }
+}
+
+function playToggle(ds) {
+  const s = state[ds];
+  if (s.timer) { stopPlay(ds); return; }
+  const btn = document.getElementById('play-' + ds);
+  btn.textContent = '⏸ Pause'; btn.classList.add('playing'); btn.classList.remove('primary');
+  s.timer = setInterval(() => go(ds, 1), 950);
+}
+
+function rst(ds) { stopPlay(ds); state[ds].cur = 0; render(ds); }
+
+let activeDS = 'array';
+function switchDS(name) {
+  document.getElementById('tab-' + activeDS).classList.remove('active');
+  document.getElementById('panel-' + activeDS).classList.remove('active');
+  stopPlay(activeDS);
+  activeDS = name;
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'ArrowRight') { e.preventDefault(); go(activeDS, 1); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); go(activeDS, -1); }
+  else if (e.key === ' ') { e.preventDefault(); playToggle(activeDS); }
+  else if (e.key === 'r' || e.key === 'R') rst(activeDS);
+});
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+Object.keys(STEPS).forEach(ds => {
+  render(ds);
+  renderCode(ds);
+  renderInfo(ds);
+});
+</script>
+</body>
+</html>
